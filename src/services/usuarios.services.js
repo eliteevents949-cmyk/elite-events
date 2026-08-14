@@ -45,7 +45,7 @@ async function registrarUsuario(
 async function buscarUsuarioPorCorreo(correo) {
 
     const sql = `
-        SELECT *
+        SELECT id, nombre, apellido, correo, password, rol
         FROM usuarios
         WHERE correo = ?
     `;

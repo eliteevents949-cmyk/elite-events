@@ -1,27 +1,118 @@
-<form id="formLogin" onsubmit="iniciarSesion(event)">
+<!DOCTYPE html>
+<html lang="es">
 
-    <label>Correo electrónico</label>
+<head>
 
-    <input
-        type="email"
-        id="correoLogin"
-        placeholder="correo@gmail.com"
-        required
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
     >
 
-    <label>Contraseña</label>
+    <title>Elite Events - Iniciar sesión</title>
 
-    <input
-        type="password"
-        id="passwordLogin"
-        placeholder="Contraseña"
-        required
-    >
+    <link rel="stylesheet" href="./style.css">
 
-    <button type="submit">
-        Iniciar sesión
-    </button>
+</head>
 
-</form>
+<body>
+
+<header>
+
+    <div class="logo">
+        🎉 <span>Elite Events</span>
+    </div>
+
+    <nav>
+
+        <a href="index.html">
+            Inicio
+        </a>
+
+        <a href="eventos.html">
+            Eventos
+        </a>
+
+        <a href="registro.html">
+            Registrarse
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <section class="formulario">
+
+        <h1>🔐 Iniciar sesión</h1>
+
+        <p>
+            Ingresa a tu cuenta de Elite Events.
+        </p>
+
+
+        <form id="formLogin">
+
+            <label for="correoLogin">
+                Correo electrónico
+            </label>
+
+            <input
+                type="email"
+                id="correoLogin"
+                placeholder="correo@gmail.com"
+                required
+            >
+
+
+            <label for="passwordLogin">
+                Contraseña
+            </label>
+
+            <input
+                type="password"
+                id="passwordLogin"
+                placeholder="Tu contraseña"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="btn-principal"
+            >
+                Iniciar sesión
+            </button>
+
+        </form>
+
+
+        <p
+            id="mensajeLogin"
+            class="centrado"
+        ></p>
+
+
+        <p class="centrado">
+
+            ¿No tienes una cuenta?
+
+            <a href="registro.html">
+                Regístrate
+            </a>
+
+        </p>
+
+    </section>
+
+</main>
+
 
 <script src="./script.js"></script>
+
+</body>
+
+</html>

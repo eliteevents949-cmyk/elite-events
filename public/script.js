@@ -154,45 +154,10 @@ function iniciarSesion(event) {
 // CREAR EVENTO
 // ==========================================
 
-function crearEvento(event) {
-
-    event.preventDefault();
-
-    const nombre = document.getElementById("nombreEvento").value;
-    const descripcion = document.getElementById("descripcionEvento").value;
-    const fecha = document.getElementById("fechaEvento").value;
-    const lugar = document.getElementById("lugarEvento").value;
-
-    let eventos =
-        JSON.parse(localStorage.getItem("eventos")) || [];
-
-    eventos.push({
-        id: Date.now(),
-        nombre: nombre,
-        descripcion: descripcion,
-        fecha: fecha,
-        lugar: lugar
-    });
-
-    localStorage.setItem(
-        "eventos",
-        JSON.stringify(eventos)
-    );
-
-    alert("🎉 Evento creado correctamente.");
-
-    window.location.href = "eventos.html";
-}
-
-
-// ==========================================
-// RESERVAR
-// ==========================================
-
 function reservar(nombreEvento) {
 
     const usuario =
-        JSON.parse(localStorage.getItem("usuarioActual"));
+        JSON.parse(localStorage.getItem("usuario"));
 
     if (!usuario) {
 
@@ -220,4 +185,109 @@ function reservar(nombreEvento) {
     alert("🎟️ Reserva realizada correctamente.");
 
     window.location.href = "reservas.html";
+}
+//=======================================
+// LOGIN DE USUARIO
+// ========================================
+
+const formularioLogin =
+    document.getElementById("formLogin");
+
+
+if (formularioLogin) {
+
+    formularioLogin.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            const correo =
+                document.getElementById(
+                    "correoLogin"
+                ).value.trim();
+
+
+            const password =
+                document.getElementById(
+                    "passwordLogin"
+                ).value;
+
+
+            const mensaje =
+                document.getElementById(
+                    "mensajeLogin"
+                );
+
+
+            mensaje.textContent =
+                "Iniciando sesión...";
+
+
+            try {
+
+                const respuesta = await fetch(
+                    "/api/usuarios/login",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            correo: correo,
+                            password: password
+                        })
+                    }
+                );
+
+
+                const datos =
+                    await respuesta.json();
+
+
+                if (!respuesta.ok) {
+
+                    mensaje.textContent =
+                        "❌ " + datos.mensaje;
+
+                    return;
+                }
+
+
+                // Guardar usuario en el navegador
+                localStorage.setItem(
+                    "usuario",
+                    JSON.stringify(datos.usuario)
+                );
+
+
+                mensaje.textContent =
+                    "✅ Inicio de sesión correcto";
+
+
+                // Ir a eventos
+                setTimeout(function () {
+
+                    window.location.href =
+                        "eventos.html";
+
+                }, 1000);
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                mensaje.textContent =
+                    "❌ No se pudo conectar con el servidor.";
+
+            }
+
+        }
+    );
+
 }

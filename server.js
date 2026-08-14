@@ -6,12 +6,11 @@ const app = express();
 const PORT = 3000;
 
 
-// ==============================
-// MIDDLEWARE
-// ==============================
-
+// JSON
 app.use(express.json());
 
+
+// Formularios
 app.use(
     express.urlencoded({
         extended: true
@@ -19,10 +18,7 @@ app.use(
 );
 
 
-// ==============================
-// ARCHIVOS PUBLIC
-// ==============================
-
+// Archivos HTML, CSS y JS
 app.use(
     express.static(
         path.join(__dirname, "public")
@@ -30,12 +26,10 @@ app.use(
 );
 
 
-// ==============================
-// RUTAS USUARIOS
-// ==============================
-
+// Rutas de usuarios
 const usuariosRoutes =
     require("./src/routers/usuarios.routes");
+
 
 app.use(
     "/api/usuarios",
@@ -43,10 +37,7 @@ app.use(
 );
 
 
-// ==============================
-// PÁGINA PRINCIPAL
-// ==============================
-
+// Página principal
 app.get("/", (req, res) => {
 
     res.sendFile(
@@ -60,10 +51,7 @@ app.get("/", (req, res) => {
 });
 
 
-// ==============================
-// SERVIDOR
-// ==============================
-
+// Servidor
 app.listen(PORT, () => {
 
     console.log(
