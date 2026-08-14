@@ -4,15 +4,27 @@
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Elite Events - Eventos</title>
 
-    <link rel="stylesheet" href="./style.css">
+    <link
+        rel="stylesheet"
+        href="./style.css"
+    >
 
 </head>
 
+
 <body>
+
+    <!-- =========================
+         ENCABEZADO
+    ========================== -->
 
     <header>
 
@@ -20,27 +32,67 @@
             🎉 <span>Elite Events</span>
         </div>
 
+
         <nav>
-            <a href="index.html">Inicio</a>
-            <a href="eventos.html" class="activo">Eventos</a>
-            <a href="reservas.html">Mis reservas</a>
-            <a href="crear-evento.html">Crear evento</a>
+
+            <a href="index.html">
+                Inicio
+            </a>
+
+            <a
+                href="eventos.html"
+                class="activo"
+            >
+                Eventos
+            </a>
+
+            <a href="reservas.html">
+                Mis reservas
+            </a>
+
+            <a href="crear-evento.html">
+                Crear evento
+            </a>
+
         </nav>
 
+
         <div class="cuenta">
-            <a href="login.html" class="btn-login">
+
+            <a
+                href="login.html"
+                class="btn-login"
+            >
                 Iniciar sesión
             </a>
 
-            <a href="registro.html" class="btn-registro">
+
+            <a
+                href="registro.html"
+                class="btn-registro"
+            >
                 Registrarse
             </a>
+
+
+            <button
+                onclick="cerrarSesion()"
+                class="btn-cerrar-sesion"
+            >
+                🚪 Cerrar sesión
+            </button>
+
         </div>
 
     </header>
 
 
+    <!-- =========================
+         CONTENIDO
+    ========================== -->
+
     <main>
+
 
         <section class="titulo-pagina">
 
@@ -48,9 +100,11 @@
                 DESCUBRE EXPERIENCIAS
             </p>
 
+
             <h1>
                 Eventos destacados
             </h1>
+
 
             <p>
                 Encuentra el evento perfecto para ti.
@@ -59,7 +113,15 @@
         </section>
 
 
+
+        <!-- =========================
+             EVENTOS
+        ========================== -->
+
         <section class="lista-eventos">
+
+
+            <!-- EVENTO 1 -->
 
             <div class="tarjeta-evento">
 
@@ -67,20 +129,34 @@
                     🎵
                 </div>
 
+
                 <div>
 
-                    <h2>Concierto Musical</h2>
+                    <h2>
+                        Concierto Musical
+                    </h2>
+
 
                     <p>
                         Disfruta de una experiencia musical
                         increíble con artistas invitados.
                     </p>
 
-                    <p>📅 15 de septiembre de 2026</p>
 
-                    <p>📍 Medellín, Colombia</p>
+                    <p>
+                        📅 15 de septiembre de 2026
+                    </p>
 
-                    <button onclick="reservar('Concierto Musical')">
+
+                    <p>
+                        📍 Medellín, Colombia
+                    </p>
+
+
+                    <button
+                        class="btn-principal"
+                        onclick="reservar('Concierto Musical')"
+                    >
                         🎟️ Reservar entrada
                     </button>
 
@@ -88,6 +164,9 @@
 
             </div>
 
+
+
+            <!-- EVENTO 2 -->
 
             <div class="tarjeta-evento">
 
@@ -95,20 +174,34 @@
                     🎭
                 </div>
 
+
                 <div>
 
-                    <h2>Festival Cultural</h2>
+                    <h2>
+                        Festival Cultural
+                    </h2>
+
 
                     <p>
                         Conoce música, arte, gastronomía
                         y cultura.
                     </p>
 
-                    <p>📅 20 de septiembre de 2026</p>
 
-                    <p>📍 Medellín, Colombia</p>
+                    <p>
+                        📅 20 de septiembre de 2026
+                    </p>
 
-                    <button onclick="reservar('Festival Cultural')">
+
+                    <p>
+                        📍 Medellín, Colombia
+                    </p>
+
+
+                    <button
+                        class="btn-principal"
+                        onclick="reservar('Festival Cultural')"
+                    >
                         🎟️ Reservar entrada
                     </button>
 
@@ -116,6 +209,9 @@
 
             </div>
 
+
+
+            <!-- EVENTO 3 -->
 
             <div class="tarjeta-evento">
 
@@ -123,20 +219,34 @@
                     ⚽
                 </div>
 
+
                 <div>
 
-                    <h2>Evento Deportivo</h2>
+                    <h2>
+                        Evento Deportivo
+                    </h2>
+
 
                     <p>
                         Vive la emoción del deporte
                         con tus amigos.
                     </p>
 
-                    <p>📅 1 de octubre de 2026</p>
 
-                    <p>📍 Medellín, Colombia</p>
+                    <p>
+                        📅 1 de octubre de 2026
+                    </p>
 
-                    <button onclick="reservar('Evento Deportivo')">
+
+                    <p>
+                        📍 Medellín, Colombia
+                    </p>
+
+
+                    <button
+                        class="btn-principal"
+                        onclick="reservar('Evento Deportivo')"
+                    >
                         🎟️ Reservar entrada
                     </button>
 
@@ -144,18 +254,29 @@
 
             </div>
 
+
         </section>
+
 
     </main>
 
 
+
+    <!-- =========================
+         PIE DE PÁGINA
+    ========================== -->
+
     <footer>
 
-        <h3>🎉 Elite Events</h3>
+        <h3>
+            🎉 Elite Events
+        </h3>
+
 
         <p>
             Descubre. Organiza. Disfruta.
         </p>
+
 
         <p>
             © 2026 Elite Events
@@ -164,7 +285,11 @@
     </footer>
 
 
+
+    <!-- JAVASCRIPT -->
+
     <script src="./script.js"></script>
+
 
 </body>
 

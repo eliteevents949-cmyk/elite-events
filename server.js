@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 
+
 const app = express();
 
 const PORT = 3000;
@@ -35,7 +36,12 @@ app.use(
     "/api/usuarios",
     usuariosRoutes
 );
-
+const reservasRoutes =
+    require("./src/routers/reservas.routes");
+ app.use(
+"/api/reservas",
+reservasRoutes
+);
 
 // Página principal
 app.get("/", (req, res) => {
