@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Elite Events - Eventos</title>
+
+    <link rel="stylesheet" href="./style.css">
+
+</head>
+
+<body>
+
+    <header>
+
+        <div class="logo">
+            🎉 <span>Elite Events</span>
+        </div>
+
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="eventos.html" class="activo">Eventos</a>
+            <a href="reservas.html">Mis reservas</a>
+            <a href="crear-evento.html">Crear evento</a>
+        </nav>
+
+        <div class="cuenta">
+            <a href="login.html" class="btn-login">
+                Iniciar sesión
+            </a>
+
+            <a href="registro.html" class="btn-registro">
+                Registrarse
+            </a>
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <section class="titulo-pagina">
+
+            <p class="bienvenida">
+                DESCUBRE EXPERIENCIAS
+            </p>
+
+            <h1>
+                Eventos destacados
+            </h1>
+
+            <p>
+                Encuentra el evento perfecto para ti.
+            </p>
+
+        </section>
+
+
+        <section class="lista-eventos">
+
+            <div class="tarjeta-evento">
+
+                <div class="icono-evento">
+                    🎵
+                </div>
+
+                <div>
+
+                    <h2>Concierto Musical</h2>
+
+                    <p>
+                        Disfruta de una experiencia musical
+                        increíble con artistas invitados.
+                    </p>
+
+                    <p>📅 15 de septiembre de 2026</p>
+
+                    <p>📍 Medellín, Colombia</p>
+
+                    <button onclick="reservar('Concierto Musical')">
+                        🎟️ Reservar entrada
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="tarjeta-evento">
+
+                <div class="icono-evento">
+                    🎭
+                </div>
+
+                <div>
+
+                    <h2>Festival Cultural</h2>
+
+                    <p>
+                        Conoce música, arte, gastronomía
+                        y cultura.
+                    </p>
+
+                    <p>📅 20 de septiembre de 2026</p>
+
+                    <p>📍 Medellín, Colombia</p>
+
+                    <button onclick="reservar('Festival Cultural')">
+                        🎟️ Reservar entrada
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="tarjeta-evento">
+
+                <div class="icono-evento">
+                    ⚽
+                </div>
+
+                <div>
+
+                    <h2>Evento Deportivo</h2>
+
+                    <p>
+                        Vive la emoción del deporte
+                        con tus amigos.
+                    </p>
+
+                    <p>📅 1 de octubre de 2026</p>
+
+                    <p>📍 Medellín, Colombia</p>
+
+                    <button onclick="reservar('Evento Deportivo')">
+                        🎟️ Reservar entrada
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <h3>🎉 Elite Events</h3>
+
+        <p>
+            Descubre. Organiza. Disfruta.
+        </p>
+
+        <p>
+            © 2026 Elite Events
+        </p>
+
+    </footer>
+
+
+    <script src="./script.js"></script>
+
+</body>
+
+</html>

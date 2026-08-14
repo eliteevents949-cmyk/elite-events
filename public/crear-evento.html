@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Elite Events - Crear evento</title>
+
+    <link rel="stylesheet" href="./style.css">
+
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        🎉 <span>Elite Events</span>
+    </div>
+
+    <nav>
+        <a href="index.html">Inicio</a>
+        <a href="eventos.html">Eventos</a>
+        <a href="reservas.html">Mis reservas</a>
+        <a href="crear-evento.html" class="activo">
+            Crear evento
+        </a>
+    </nav>
+
+    <div class="cuenta">
+
+        <a href="login.html" class="btn-login">
+            Iniciar sesión
+        </a>
+
+        <a href="registro.html" class="btn-registro">
+            Registrarse
+        </a>
+
+    </div>
+
+</header>
+
+
+<main>
+
+    <section class="titulo-pagina">
+
+        <p class="bienvenida">
+            ORGANIZA TU EVENTO
+        </p>
+
+        <h1>➕ Crear evento</h1>
+
+        <p>
+            Publica y administra tu propio evento.
+        </p>
+
+    </section>
+
+
+    <section class="formulario">
+
+        <form id="formEvento" onsubmit="crearEvento(event)"></form>
+
+            <label>Nombre del evento</label>
+
+            <input
+                type="text"
+                id="nombreEvento"
+                placeholder="Ej: Concierto de verano"
+                required
+            >
+
+
+            <label>Descripción</label>
+
+            <textarea
+                id="descripcionEvento"
+                placeholder="Describe tu evento"
+                required
+            ></textarea>
+
+
+            <label>Fecha</label>
+
+            <input
+                type="date"
+                id="fechaEvento"
+                required
+            >
+
+
+            <label>Lugar</label>
+
+            <input
+                type="text"
+                id="lugarEvento"
+                placeholder="Ej: Medellín"
+                required
+            >
+
+
+            <button type="submit" class="btn-principal">
+                Crear evento
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <h3>🎉 Elite Events</h3>
+
+    <p>© 2026 Elite Events</p>
+
+</footer>
+
+
+<script src="./script.js"></script>
+
+</body>
+
+</html>

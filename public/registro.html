@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Elite Events - Registrarse</title>
+
+    <link rel="stylesheet" href="./style.css">
+
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        🎉 <span>Elite Events</span>
+    </div>
+
+    <nav>
+
+        <a href="index.html">
+            Inicio
+        </a>
+
+        <a href="eventos.html">
+            Eventos
+        </a>
+
+        <a href="login.html">
+            Iniciar sesión
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main>
+
+    <section class="formulario">
+
+        <h1>👤 Crear cuenta</h1>
+
+        <p>
+            Regístrate para descubrir y reservar eventos.
+        </p>
+
+
+        <form id="formRegistro">
+
+            <!-- NOMBRE -->
+
+            <label for="nombreRegistro">
+                Nombre
+            </label>
+
+            <input
+                type="text"
+                id="nombreRegistro"
+                placeholder="Tu nombre"
+                required
+            >
+
+
+            <!-- APELLIDO -->
+
+            <label for="apellidoRegistro">
+                Apellido
+            </label>
+
+            <input
+                type="text"
+                id="apellidoRegistro"
+                placeholder="Tu apellido"
+                required
+            >
+
+
+            <!-- CORREO -->
+
+            <label for="correoRegistro">
+                Correo electrónico
+            </label>
+
+            <input
+                type="email"
+                id="correoRegistro"
+                placeholder="correo@gmail.com"
+                required
+            >
+
+
+            <!-- CONTRASEÑA -->
+
+            <label for="passwordRegistro">
+                Contraseña
+            </label>
+
+            <input
+                type="password"
+                id="passwordRegistro"
+                placeholder="Contraseña"
+                minlength="6"
+                required
+            >
+
+
+            <button
+                type="submit"
+                class="btn-principal"
+            >
+                Registrarme
+            </button>
+
+        </form>
+
+
+        <!-- MENSAJE -->
+
+        <p
+            id="mensajeRegistro"
+            class="centrado"
+        ></p>
+
+
+        <p class="centrado">
+
+            ¿Ya tienes una cuenta?
+
+            <a href="login.html">
+                Inicia sesión
+            </a>
+
+        </p>
+
+    </section>
+
+</main>
+
+
+<script src="./script.js"></script>
+
+</body>
+
+</html>
