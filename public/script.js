@@ -1,4 +1,9 @@
 // ========================================
+// ELITE EVENTS - SCRIPT.JS
+// ========================================
+
+
+// ========================================
 // REGISTRO DE USUARIO
 // ========================================
 
@@ -43,15 +48,16 @@ if (formularioRegistro) {
                         },
 
                         body: JSON.stringify({
-                            nombre,
-                            apellido,
-                            correo,
-                            password
+                            nombre: nombre,
+                            apellido: apellido,
+                            correo: correo,
+                            password: password
                         })
                     }
                 );
 
-                const datos = await respuesta.json();
+                const datos =
+                    await respuesta.json();
 
                 if (!respuesta.ok) {
 
@@ -86,7 +92,7 @@ if (formularioRegistro) {
 
 
 // ========================================
-// LOGIN DE USUARIO
+// INICIAR SESIÓN
 // ========================================
 
 const formularioLogin =
@@ -122,8 +128,7 @@ if (formularioLogin) {
                         method: "POST",
 
                         headers: {
-                            "Content-Type":
-                                "application/json"
+                            "Content-Type": "application/json"
                         },
 
                         body: JSON.stringify({
@@ -144,7 +149,7 @@ if (formularioLogin) {
                     return;
                 }
 
-                // Guardar usuario que inició sesión
+                // Guardar usuario de MySQL
                 localStorage.setItem(
                     "usuario",
                     JSON.stringify(datos.usuario)
@@ -176,38 +181,272 @@ if (formularioLogin) {
 // RESERVAR EVENTO
 // ========================================
 
-function reservar(nombreEvento) {
+async function reservar(nombreEvento) {
 
+    // Obtener usuario que inició sesión
     const usuario = JSON.parse(
-        localStorage.getItem("usuarioActual")
+        localStorage.getItem("usuario")
     );
 
+    // Comprobar sesión
     if (!usuario) {
-        alert("⚠️ Primero debes iniciar sesión.");
-        window.location.href = "login.html";
+
+        alert(
+            "⚠️ Primero debes iniciar sesión."
+        );
+
+        window.location.href =
+            "login.html";
+
         return;
     }
 
-    let reservas = JSON.parse(
-        localStorage.getItem("reservas")
-    ) || [];
+    // Comprobar que el usuario tenga ID
+    if (!usuario.id) {
 
-    reservas.push({
-        id: Date.now(),
-        usuario: usuario.correo,
-        nombreUsuario: usuario.nombre,
-        evento: nombreEvento,
-        fecha: new Date().toLocaleDateString()
-    });
+        alert(
+            "❌ No se encontró el ID del usuario."
+        );
 
-    localStorage.setItem(
-        "reservas",
-        JSON.stringify(reservas)
+        console.error(
+            "Usuario guardado:",
+            usuario
+        );
+
+        return;
+    }
+
+    try {
+
+        const respuesta = await fetch(
+            "/api/reservas",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    usuarioId:
+                        usuario.id,
+
+                    evento:
+                        nombreEvento
+
+                })
+            }
+        );
+
+        const datos =
+            await respuesta.json();
+
+        if (!respuesta.ok) {
+
+            alert(
+                "❌ " +
+                (datos.mensaje ||
+                "No se pudo guardar la reserva.")
+            );
+
+            return;
+        }
+
+        alert(
+            "🎟️ ¡Reserva guardada correctamente en MySQL!"
+        );
+
+        window.location.href =
+            "reservas.html";
+
+    } catch (error) {
+
+        console.error(
+            "Error al reservar:",
+            error
+        );
+
+        alert(
+            "❌ No se pudo conectar con el servidor."
+        );
+    }
+}
+
+
+// ========================================
+// MOSTRAR RESERVAS
+// ========================================
+
+async function mostrarReservas() {
+
+    const contenedor =
+        document.getElementById("listaReservas");
+
+    if (!contenedor) {
+        return;
+    }
+
+    const usuario = JSON.parse(
+        localStorage.getItem("usuario")
     );
 
-    alert("🎟️ ¡Reserva realizada correctamente!");
+    // Comprobar sesión
+    if (!usuario) {
 
-    window.location.href = "reservas.html";
+        contenedor.innerHTML = `
+            <div class="reserva-vacia">
+
+                <h2>🔐 Inicia sesión</h2>
+
+                <p>
+                    Debes iniciar sesión
+                    para ver tus reservas.
+                </p>
+
+                <a href="login.html"
+                   class="btn-principal">
+
+                    Iniciar sesión
+
+                </a>
+
+            </div>
+        `;
+
+        return;
+    }
+
+    // Comprobar ID
+    if (!usuario.id) {
+
+        contenedor.innerHTML = `
+            <p>
+                ❌ No se encontró el ID del usuario.
+            </p>
+        `;
+
+        console.error(
+            "Usuario sin ID:",
+            usuario
+        );
+
+        return;
+    }
+
+    contenedor.innerHTML =
+        "<p>🔄 Cargando reservas...</p>";
+
+    try {
+
+        const respuesta = await fetch(
+            "/api/reservas/usuario/" +
+            usuario.id
+        );
+
+        const reservas =
+            await respuesta.json();
+
+        if (!respuesta.ok) {
+
+            contenedor.innerHTML = `
+                <p>
+                    ❌ No se pudieron cargar las reservas.
+                </p>
+            `;
+
+            return;
+        }
+
+        // No hay reservas
+        if (
+            !Array.isArray(reservas) ||
+            reservas.length === 0
+        ) {
+
+            contenedor.innerHTML = `
+                <div class="reserva-vacia">
+
+                    <h2>🎟️ No tienes reservas</h2>
+
+                    <p>
+                        Todavía no has reservado
+                        ningún evento.
+                    </p>
+
+                    <a href="eventos.html"
+                       class="btn-principal">
+
+                        Ver eventos
+
+                    </a>
+
+                </div>
+            `;
+
+            return;
+        }
+
+        // Limpiar contenedor
+        contenedor.innerHTML = "";
+
+        // Mostrar reservas
+        reservas.forEach(function (reserva) {
+
+            const tarjeta =
+                document.createElement("div");
+
+            tarjeta.className =
+                "tarjeta-evento";
+
+            tarjeta.innerHTML = `
+
+                <div class="icono-evento">
+                    🎟️
+                </div>
+
+                <div>
+
+                    <h2>
+                        ${reserva.evento}
+                    </h2>
+
+                    <p>
+                        <strong>Reserva #:</strong>
+                        ${reserva.id}
+                    </p>
+
+                    <p>
+                        <strong>Fecha:</strong>
+                        ${
+                            reserva.fecha_reserva ||
+                            reserva.fecha ||
+                            "Sin fecha"
+                        }
+                    </p>
+
+                </div>
+            `;
+
+            contenedor.appendChild(
+                tarjeta
+            );
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error al obtener reservas:",
+            error
+        );
+
+        contenedor.innerHTML = `
+            <p>
+                ❌ Error al conectar con el servidor.
+            </p>
+        `;
+    }
 }
 
 
@@ -217,11 +456,13 @@ function reservar(nombreEvento) {
 
 function cerrarSesion() {
 
-    localStorage.removeItem("usuario");
+    localStorage.removeItem(
+        "usuario"
+    );
 
-    // También eliminamos el antiguo
-    // por si quedó guardado de pruebas anteriores
-    localStorage.removeItem("usuarioActual");
+    localStorage.removeItem(
+        "usuarioActual"
+    );
 
     alert(
         "👋 Sesión cerrada correctamente."
@@ -230,40 +471,55 @@ function cerrarSesion() {
     window.location.href =
         "index.html";
 }
+
+
 // ========================================
-// INICIAR SECCION
+// MOSTRAR USUARIO
 // ========================================
-function iniciarSesion(event) {
 
-    event.preventDefault();
+function mostrarUsuario() {
 
-    const correo = document.getElementById("correoLogin").value.trim();
-    const password = document.getElementById("passwordLogin").value;
+    const elemento =
+        document.getElementById(
+            "usuarioActual"
+        );
 
-    const usuarios = JSON.parse(
-        localStorage.getItem("usuarios")
-    ) || [];
-
-    const usuario = usuarios.find(function(usuario) {
-        return usuario.correo === correo &&
-               usuario.password === password;
-    });
-
-    if (!usuario) {
-        alert("❌ Correo o contraseña incorrectos.");
+    if (!elemento) {
         return;
     }
 
-    // GUARDAR EL USUARIO QUE INICIÓ SESIÓN
-    localStorage.setItem(
-        "usuarioActual",
-        JSON.stringify({
-            nombre: usuario.nombre,
-            correo: usuario.correo
-        })
+    const usuario = JSON.parse(
+        localStorage.getItem("usuario")
     );
 
-    alert("✅ Inicio de sesión exitoso.");
+    if (!usuario) {
 
-    window.location.href = "index.html";
+        elemento.textContent =
+            "No has iniciado sesión.";
+
+        return;
+    }
+
+    elemento.textContent =
+        "👤 " +
+        (
+            usuario.nombre ||
+            usuario.correo
+        );
 }
+
+
+// ========================================
+// EJECUTAR AL CARGAR LA PÁGINA
+// ========================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        mostrarReservas();
+
+        mostrarUsuario();
+
+    }
+);
