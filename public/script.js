@@ -176,72 +176,38 @@ if (formularioLogin) {
 // RESERVAR EVENTO
 // ========================================
 
-async function reservar(nombreEvento) {
+function reservar(nombreEvento) {
 
-    const usuario =
-        JSON.parse(
-            localStorage.getItem("usuario")
-        );
+    const usuario = JSON.parse(
+        localStorage.getItem("usuarioActual")
+    );
 
-    // Comprobar sesión
     if (!usuario) {
-
-        alert(
-            "⚠️ Primero debes iniciar sesión."
-        );
-
-        window.location.href =
-            "login.html";
-
+        alert("⚠️ Primero debes iniciar sesión.");
+        window.location.href = "login.html";
         return;
     }
 
-    try {
+    let reservas = JSON.parse(
+        localStorage.getItem("reservas")
+    ) || [];
 
-        const respuesta = await fetch(
-            "/api/reservas",
-            {
-                method: "POST",
+    reservas.push({
+        id: Date.now(),
+        usuario: usuario.correo,
+        nombreUsuario: usuario.nombre,
+        evento: nombreEvento,
+        fecha: new Date().toLocaleDateString()
+    });
 
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
+    localStorage.setItem(
+        "reservas",
+        JSON.stringify(reservas)
+    );
 
-                body: JSON.stringify({
-                    usuarioId: usuario.id,
-                    evento: nombreEvento
-                })
-            }
-        );
+    alert("🎟️ ¡Reserva realizada correctamente!");
 
-        const datos =
-            await respuesta.json();
-
-        if (!respuesta.ok) {
-
-            alert(
-                "❌ " + datos.mensaje
-            );
-
-            return;
-        }
-
-        alert(
-            "🎟️ Reserva realizada correctamente."
-        );
-
-        window.location.href =
-            "reservas.html";
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(
-            "❌ No se pudo conectar con el servidor."
-        );
-    }
+    window.location.href = "reservas.html";
 }
 
 
@@ -263,4 +229,41 @@ function cerrarSesion() {
 
     window.location.href =
         "index.html";
+}
+// ========================================
+// INICIAR SECCION
+// ========================================
+function iniciarSesion(event) {
+
+    event.preventDefault();
+
+    const correo = document.getElementById("correoLogin").value.trim();
+    const password = document.getElementById("passwordLogin").value;
+
+    const usuarios = JSON.parse(
+        localStorage.getItem("usuarios")
+    ) || [];
+
+    const usuario = usuarios.find(function(usuario) {
+        return usuario.correo === correo &&
+               usuario.password === password;
+    });
+
+    if (!usuario) {
+        alert("❌ Correo o contraseña incorrectos.");
+        return;
+    }
+
+    // GUARDAR EL USUARIO QUE INICIÓ SESIÓN
+    localStorage.setItem(
+        "usuarioActual",
+        JSON.stringify({
+            nombre: usuario.nombre,
+            correo: usuario.correo
+        })
+    );
+
+    alert("✅ Inicio de sesión exitoso.");
+
+    window.location.href = "index.html";
 }
