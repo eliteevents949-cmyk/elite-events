@@ -8,21 +8,21 @@ const router = express.Router();
 
 // Obtener todos los eventos
 router.get(
-    "/eventos",
+    "/",
     eventosController.obtenerEventos
 );
 
 
 // Crear un evento
 router.post(
-    "/eventos",
+    "/",
     eventosController.crearEvento
 );
 
 
 // Eliminar un evento
 router.delete(
-    "/eventos/:id",
+    "/:id",
     eventosController.eliminarEvento
 );
 

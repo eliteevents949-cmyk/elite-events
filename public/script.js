@@ -181,14 +181,14 @@ if (formularioLogin) {
 // RESERVAR EVENTO
 // ========================================
 
-async function reservar(nombreEvento) {
+async function reservar(eventoId) {
 
-    // Obtener usuario que inició sesión
-    const usuario = JSON.parse(
-        localStorage.getItem("usuario")
-    );
+    const usuario =
+        JSON.parse(
+            localStorage.getItem("usuario")
+        );
 
-    // Comprobar sesión
+
     if (!usuario) {
 
         alert(
@@ -201,71 +201,78 @@ async function reservar(nombreEvento) {
         return;
     }
 
-    // Comprobar que el usuario tenga ID
+
     if (!usuario.id) {
 
         alert(
             "❌ No se encontró el ID del usuario."
         );
 
-        console.error(
-            "Usuario guardado:",
-            usuario
-        );
-
         return;
     }
 
+
     try {
 
-        const respuesta = await fetch(
-            "/api/reservas",
-            {
-                method: "POST",
+        const respuesta =
+            await fetch(
+                "/api/reservas",
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-                body: JSON.stringify({
+                    body: JSON.stringify({
 
-                    usuarioId:
-                        usuario.id,
+                        usuarioId:
+                            usuario.id,
 
-                    evento:
-                        nombreEvento
+                        eventoId:
+                            eventoId
 
-                })
-            }
-        );
+                    })
+                }
+            );
+
 
         const datos =
             await respuesta.json();
 
+
         if (!respuesta.ok) {
+
+            console.error(
+                "Error:",
+                datos
+            );
 
             alert(
                 "❌ " +
-                (datos.mensaje ||
-                "No se pudo guardar la reserva.")
+                (
+                    datos.mensaje ||
+                    "Error al guardar reserva"
+                )
             );
 
             return;
         }
 
+
         alert(
-            "🎟️ ¡Reserva guardada correctamente en MySQL!"
+            "🎟️ ¡Reserva guardada correctamente!"
         );
+
 
         window.location.href =
             "reservas.html";
 
+
     } catch (error) {
 
-        console.error(
-            "Error al reservar:",
-            error
-        );
+        console.error(error);
 
         alert(
             "❌ No se pudo conectar con el servidor."
@@ -523,3 +530,221 @@ document.addEventListener(
 
     }
 );
+// ========================================
+// CREAR EVENTO
+// ========================================
+
+async function crearEvento(event) {
+
+    event.preventDefault();
+
+    const nombre =
+        document.getElementById("nombreEvento").value.trim();
+
+    const descripcion =
+        document.getElementById("descripcionEvento").value.trim();
+
+    const fecha =
+        document.getElementById("fechaEvento").value;
+
+    const lugar =
+        document.getElementById("lugarEvento").value.trim();
+
+    const categoria =
+        document.getElementById("categoriaEvento").value;
+
+    const hora =
+        document.getElementById("horaEvento").value;
+
+    const precio =
+        document.getElementById("precioEvento").value;
+
+    const mensaje =
+        document.getElementById("mensajeEvento");
+
+
+    mensaje.textContent =
+        "Guardando evento...";
+
+
+    try {
+
+        const respuesta = await fetch(
+            "/api/eventos",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    nombre,
+                    descripcion,
+                    fecha,
+                    lugar,
+                    categoria,
+                    hora,
+                    precio,
+                    imagen: null
+
+                })
+            }
+        );
+
+
+        const datos =
+            await respuesta.json();
+
+
+        if (!respuesta.ok) {
+
+            mensaje.textContent =
+                "❌ " +
+                (
+                    datos.mensaje ||
+                    "No se pudo guardar el evento"
+                );
+
+            return;
+        }
+
+
+        // ✅ ÉXITO
+        mensaje.textContent =
+            "✅ Evento guardado correctamente";
+
+        mensaje.style.display =
+            "block";
+
+
+        // Limpiar formulario
+        document
+            .getElementById("formEvento")
+            .reset();
+
+
+        // Ir a eventos después de 2 segundos
+        setTimeout(() => {
+
+            window.location.href =
+                "eventos.html";
+
+        }, 2000);
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        mensaje.textContent =
+            "❌ No se pudo conectar con el servidor.";
+    }
+}
+async function crearEvento(event) {
+
+    event.preventDefault();
+
+    console.log("✅ La función crearEvento sí se ejecutó");
+
+    const nombre =
+        document.getElementById("nombreEvento").value.trim();
+
+    const descripcion =
+        document.getElementById("descripcionEvento").value.trim();
+
+    const fecha =
+        document.getElementById("fechaEvento").value;
+
+    const lugar =
+        document.getElementById("lugarEvento").value.trim();
+
+    const categoria =
+        document.getElementById("categoriaEvento").value;
+
+    const hora =
+        document.getElementById("horaEvento").value;
+
+    const precio =
+        document.getElementById("precioEvento").value;
+
+    const mensaje =
+        document.getElementById("mensajeEvento");
+
+
+    mensaje.textContent = "Guardando evento...";
+
+
+    try {
+
+        const respuesta = await fetch("/api/eventos", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                nombre,
+                descripcion,
+                fecha,
+                lugar,
+                categoria,
+                hora,
+                precio,
+                imagen: null
+
+            })
+
+        });
+
+
+        const datos =
+            await respuesta.json();
+
+
+        console.log("Respuesta del servidor:", datos);
+
+
+        if (!respuesta.ok) {
+
+            mensaje.textContent =
+                "❌ " +
+                (datos.mensaje ||
+                "No se pudo guardar el evento");
+
+            return;
+        }
+
+
+        mensaje.textContent =
+            "✅ Evento guardado correctamente";
+
+
+        document
+            .getElementById("formEvento")
+            .reset();
+
+
+        setTimeout(() => {
+
+            window.location.href =
+                "eventos.html";
+
+        }, 2000);
+
+
+    } catch (error) {
+
+        console.error(
+            "ERROR:",
+            error
+        );
+
+        mensaje.textContent =
+            "❌ No se pudo conectar con el servidor.";
+    }
+}

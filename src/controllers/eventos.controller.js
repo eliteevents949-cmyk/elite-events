@@ -1,8 +1,11 @@
 const eventosService =
-    require("../services/eventos.service");
+    require("../services/eventos.services");
 
 
-// GET /eventos
+// ========================================
+// OBTENER TODOS LOS EVENTOS
+// ========================================
+
 async function obtenerEventos(req, res) {
 
     try {
@@ -14,132 +17,201 @@ async function obtenerEventos(req, res) {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "ERROR OBTENIENDO EVENTOS:",
+            error
+        );
 
         res.status(500).json({
             mensaje: "No se pudieron obtener los eventos"
         });
-
     }
-
 }
 
 
-// POST /eventos
+// ========================================
+// CREAR EVENTO
+// ========================================
+
 async function crearEvento(req, res) {
 
     try {
 
         const {
             nombre,
+            categoria,
             fecha,
+            hora,
             lugar,
             precio,
-            categoria
+            descripcion,
+            imagen
         } = req.body;
 
 
-        // Validación
+        // Validar campos obligatorios
         if (
             !nombre ||
+            !categoria ||
             !fecha ||
-            !lugar ||
-            !categoria
+            !hora ||
+            !lugar
         ) {
 
             return res.status(400).json({
-                mensaje: "Todos los campos son obligatorios"
+                mensaje:
+                    "Faltan campos obligatorios"
             });
-
         }
 
 
         const evento = {
 
-            nombre,
+            nombre: nombre.trim(),
+
+            categoria: categoria.trim(),
+
             fecha,
-            lugar,
-            precio: Number(precio) || 0,
-            categoria
+
+            hora,
+
+            lugar: lugar.trim(),
+
+            precio:
+                Number(precio) || 0,
+
+            descripcion:
+                descripcion
+                    ? descripcion.trim()
+                    : "",
+
+            imagen:
+                imagen || null
 
         };
 
 
+        console.log(
+            "Evento recibido:",
+            evento
+        );
+
+
         const resultado =
-            await eventosService.crearEvento(evento);
+            await eventosService.crearEvento(
+                evento
+            );
 
 
         res.status(201).json({
-            mensaje: "Evento creado correctamente",
+            mensaje: "Evento guardado correctamente",
             id: resultado.insertId
         });
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "ERROR CREANDO EVENTO:",
+            error
+        );
 
         res.status(500).json({
-            mensaje: "No se pudo crear el evento"
+
+            mensaje:
+                "No se pudo crear el evento",
+
+            error:
+                error.message
+
         });
-
     }
-
 }
 
 
-// DELETE /eventos/:id
+// ========================================
+// ELIMINAR EVENTO
+// ========================================
+
 async function eliminarEvento(req, res) {
 
     try {
 
-        const id = Number(req.params.id);
+        const id =
+            Number(req.params.id);
 
 
-        if (!Number.isInteger(id) || id <= 0) {
+        if (
+            !Number.isInteger(id) ||
+            id <= 0
+        ) {
 
             return res.status(400).json({
-                mensaje: "ID inválido"
-            });
 
+                mensaje:
+                    "ID inválido"
+
+            });
         }
 
 
         const resultado =
-            await eventosService.eliminarEvento(id);
+            await eventosService.eliminarEvento(
+                id
+            );
 
 
-        if (resultado.affectedRows === 0) {
+        if (
+            resultado.affectedRows === 0
+        ) {
 
             return res.status(404).json({
-                mensaje: "Evento no encontrado"
-            });
 
+                mensaje:
+                    "Evento no encontrado"
+
+            });
         }
 
 
         res.json({
-            mensaje: "Evento eliminado correctamente"
+
+            mensaje:
+                "Evento eliminado correctamente"
+
         });
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "ERROR ELIMINANDO EVENTO:",
+            error
+        );
 
         res.status(500).json({
-            mensaje: "No se pudo eliminar el evento"
+
+            mensaje:
+                "No se pudo eliminar el evento",
+
+            error:
+                error.message
+
         });
-
     }
-
 }
 
+
+// ========================================
+// EXPORTAR
+// ========================================
 
 module.exports = {
 
     obtenerEventos,
+
     crearEvento,
+
     eliminarEvento
 
 };

@@ -1,62 +1,155 @@
 const db = require("../config/database");
 
 
-// Obtener todos los eventos
+// ========================================
+// OBTENER TODOS LOS EVENTOS
+// ========================================
+
 async function obtenerEventos() {
 
-    const [rows] = await db.execute(
-        "SELECT * FROM eventos ORDER BY fecha ASC"
-    );
+    return new Promise((resolve, reject) => {
 
-    return rows;
+        const sql = `
+            SELECT *
+            FROM eventos
+            ORDER BY fecha ASC
+        `;
 
+        db.query(
+            sql,
+            (error, resultados) => {
+
+                if (error) {
+
+                    console.error(
+                        "ERROR OBTENIENDO EVENTOS:",
+                        error
+                    );
+
+                    reject(error);
+                    return;
+                }
+
+                resolve(resultados);
+            }
+        );
+    });
 }
 
 
-// Crear evento
+// ========================================
+// CREAR EVENTO
+// ========================================
+
 async function crearEvento(evento) {
 
-    const [resultado] = await db.execute(
+    return new Promise((resolve, reject) => {
 
-        `INSERT INTO eventos
-        (nombre, fecha, lugar, precio, categoria)
-        VALUES (?, ?, ?, ?, ?)`,
+        const sql = `
+            INSERT INTO eventos
+            (
+                nombre,
+                categoria,
+                fecha,
+                hora,
+                lugar,
+                precio,
+                descripcion,
+                imagen
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
 
-        [
+        const valores = [
+
             evento.nombre,
+
+            evento.categoria,
+
             evento.fecha,
+
+            evento.hora,
+
             evento.lugar,
+
             evento.precio,
-            evento.categoria
-        ]
 
-    );
+            evento.descripcion,
 
-    return resultado;
+            evento.imagen
 
+        ];
+
+
+        db.query(
+            sql,
+            valores,
+            (error, resultado) => {
+
+                if (error) {
+
+                    console.error(
+                        "ERROR CREANDO EVENTO:",
+                        error
+                    );
+
+                    reject(error);
+                    return;
+                }
+
+                resolve(resultado);
+            }
+        );
+    });
 }
 
 
-// Eliminar evento
+// ========================================
+// ELIMINAR EVENTO
+// ========================================
+
 async function eliminarEvento(id) {
 
-    const [resultado] = await db.execute(
+    return new Promise((resolve, reject) => {
 
-        "DELETE FROM eventos WHERE id = ?",
+        const sql = `
+            DELETE FROM eventos
+            WHERE id = ?
+        `;
 
-        [id]
+        db.query(
+            sql,
+            [id],
+            (error, resultado) => {
 
-    );
+                if (error) {
 
-    return resultado;
+                    console.error(
+                        "ERROR ELIMINANDO EVENTO:",
+                        error
+                    );
 
+                    reject(error);
+                    return;
+                }
+
+                resolve(resultado);
+            }
+        );
+    });
 }
 
+
+// ========================================
+// EXPORTAR
+// ========================================
 
 module.exports = {
 
     obtenerEventos,
+
     crearEvento,
+
     eliminarEvento
 
 };

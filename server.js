@@ -65,3 +65,10 @@ app.listen(PORT, () => {
     );
 
 });
+const eventosRoutes =
+    require("./src/routers/eventos.routes");
+
+app.use(
+    "/api/eventos",
+    eventosRoutes
+);
