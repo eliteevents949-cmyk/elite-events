@@ -1,17 +1,22 @@
 const express = require("express");
 const path = require("path");
 
-
 const app = express();
 
 const PORT = 3000;
 
 
+// ========================================
 // JSON
+// ========================================
+
 app.use(express.json());
 
 
-// Formularios
+// ========================================
+// FORMULARIOS
+// ========================================
+
 app.use(
     express.urlencoded({
         extended: true
@@ -19,7 +24,10 @@ app.use(
 );
 
 
-// Archivos HTML, CSS y JS
+// ========================================
+// ARCHIVOS HTML, CSS Y JS
+// ========================================
+
 app.use(
     express.static(
         path.join(__dirname, "public")
@@ -27,23 +35,49 @@ app.use(
 );
 
 
-// Rutas de usuarios
+// ========================================
+// RUTAS DE USUARIOS
+// ========================================
+
 const usuariosRoutes =
     require("./src/routers/usuarios.routes");
-
 
 app.use(
     "/api/usuarios",
     usuariosRoutes
 );
+
+
+// ========================================
+// RUTAS DE RESERVAS
+// ========================================
+
 const reservasRoutes =
     require("./src/routers/reservas.routes");
- app.use(
-"/api/reservas",
-reservasRoutes
+
+app.use(
+    "/api/reservas",
+    reservasRoutes
 );
 
-// Página principal
+
+// ========================================
+// RUTAS DE EVENTOS
+// ========================================
+
+const eventosRoutes =
+    require("./src/routers/eventos.routes");
+
+app.use(
+    "/api/eventos",
+    eventosRoutes
+);
+
+
+// ========================================
+// PÁGINA PRINCIPAL
+// ========================================
+
 app.get("/", (req, res) => {
 
     res.sendFile(
@@ -57,7 +91,10 @@ app.get("/", (req, res) => {
 });
 
 
-// Servidor
+// ========================================
+// SERVIDOR
+// ========================================
+
 app.listen(PORT, () => {
 
     console.log(
@@ -65,10 +102,3 @@ app.listen(PORT, () => {
     );
 
 });
-const eventosRoutes =
-    require("./src/routers/eventos.routes");
-
-app.use(
-    "/api/eventos",
-    eventosRoutes
-);
