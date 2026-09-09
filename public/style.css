@@ -766,3 +766,54 @@ select:focus {
         grid-template-columns: 1fr;
     }
 }
+/* ===== CORRECCIÓN DEL LOGO ===== */
+
+/* Logo pequeño del encabezado */
+.logo {
+    display: flex;
+    align-items: center;
+    width: 180px;
+    height: 70px;
+    overflow: hidden;
+}
+
+.logo img {
+    width: 145px;
+    height: 60px;
+    object-fit: contain;
+    display: block;
+}
+
+/* Espacio del logo grande */
+.hero-imagen {
+    position: static !important;
+    width: 45% !important;
+    height: auto !important;
+    min-height: 350px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Logo grande */
+.hero-imagen img {
+    width: 280px !important;
+    height: 280px !important;
+    object-fit: contain;
+    display: block;
+    position: static !important;
+}
+
+/* Mantener el hero en dos columnas */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Texto del hero */
+.hero-text {
+    width: 55%;
+}
