@@ -727,3 +727,42 @@ select:focus {
     font-size: 15px;
     font-weight: 600;
 }
+.imagen-evento {
+    width: 100%;
+    height: 210px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.imagen-evento img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.contenido-evento {
+    width: 100%;
+    padding: 0 22px 25px;
+}
+
+.lista-eventos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+}
+
+.tarjeta-evento {
+    display: block;
+    background: white;
+    padding: 0;
+    border: 1px solid var(--linea);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+@media (max-width: 800px) {
+    .lista-eventos {
+        grid-template-columns: 1fr;
+    }
+}

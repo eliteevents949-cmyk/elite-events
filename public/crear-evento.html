@@ -1,104 +1,197 @@
-<section class="formulario">
+<!DOCTYPE html>
+<html lang="es">
 
-    <form id="formEvento">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <label for="nombreEvento">
-            Nombre del evento
-        </label>
+    <title>Crear evento - Elite Events</title>
 
-        <input
-            type="text"
-            id="nombreEvento"
-            placeholder="Ej: Concierto de verano"
-            required
-        >
+    <!-- CSS PRINCIPAL -->
+    <link rel="stylesheet" href="style.css">
+</head>
 
+<body>
 
-        <label for="categoriaEvento">
-            Categoría
-        </label>
+    <header>
 
-        <select id="categoriaEvento" required>
-            <option value="">Selecciona una categoría</option>
-            <option value="Música">Música</option>
-            <option value="Tecnología">Tecnología</option>
-            <option value="Arte">Arte</option>
-            <option value="Deportes">Deportes</option>
-            <option value="Cultura">Cultura</option>
-        </select>
+        <div class="logo">
+            Elite Events
+        </div>
 
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="eventos.html">Eventos</a>
+            <a href="reservas.html">Mis reservas</a>
+            <a href="crear-evento.html" class="activo">
+                Crear evento
+            </a>
+        </nav>
 
-        <label for="descripcionEvento">
-            Descripción
-        </label>
+        <div class="cuenta">
+            <a href="login.html" class="btn-login">
+                Iniciar sesión
+            </a>
 
-        <textarea
-            id="descripcionEvento"
-            placeholder="Describe tu evento"
-            required
-        ></textarea>
+            <a href="registro.html" class="btn-registro">
+                Registrarse
+            </a>
+        </div>
 
-
-        <label for="fechaEvento">
-            Fecha
-        </label>
-
-        <input
-            type="date"
-            id="fechaEvento"
-            required
-        >
+    </header>
 
 
-        <label for="horaEvento">
-            Hora
-        </label>
+    <main>
 
-        <input
-            type="time"
-            id="horaEvento"
-            required
-        >
+        <section class="formulario">
 
+            <h1>Crear evento</h1>
 
-        <label for="lugarEvento">
-            Lugar
-        </label>
+            <form id="formEvento">
 
-        <input
-            type="text"
-            id="lugarEvento"
-            placeholder="Ej: Medellín"
-            required
-        >
+                <label for="nombreEvento">
+                    Nombre del evento
+                </label>
+
+                <input
+                    type="text"
+                    id="nombreEvento"
+                    placeholder="Ej: Concierto de verano"
+                    required
+                >
 
 
-        <label for="precioEvento">
-            Precio de entrada
-        </label>
+                <label for="categoriaEvento">
+                    Categoría
+                </label>
 
-        <input
-            type="number"
-            id="precioEvento"
-            placeholder="Ej: 50000"
-            min="0"
-            required
-        >
+                <select id="categoriaEvento" required>
+                    <option value="">
+                        Selecciona una categoría
+                    </option>
+
+                    <option value="Música">
+                        Música
+                    </option>
+
+                    <option value="Tecnología">
+                        Tecnología
+                    </option>
+
+                    <option value="Arte">
+                        Arte
+                    </option>
+
+                    <option value="Deportes">
+                        Deportes
+                    </option>
+
+                    <option value="Cultura">
+                        Cultura
+                    </option>
+                </select>
 
 
-        <button
-            type="submit"
-            class="btn-principal"
-        >
-            Crear evento
-        </button>
+                <label for="descripcionEvento">
+                    Descripción
+                </label>
+
+                <textarea
+                    id="descripcionEvento"
+                    placeholder="Describe tu evento"
+                    required
+                ></textarea>
 
 
-        <p
-            id="mensajeEvento"
-            class="mensaje-evento"
-        ></p>
+                <label for="fechaEvento">
+                    Fecha
+                </label>
 
-    </form>
+                <input
+                    type="date"
+                    id="fechaEvento"
+                    required
+                >
 
-</section>
+
+                <label for="horaEvento">
+                    Hora
+                </label>
+
+                <input
+                    type="time"
+                    id="horaEvento"
+                    required
+                >
+
+
+                <label for="lugarEvento">
+                    Lugar
+                </label>
+
+                <input
+                    type="text"
+                    id="lugarEvento"
+                    placeholder="Ej: Medellín"
+                    required
+                >
+
+
+                <label for="precioEvento">
+                    Precio de entrada
+                </label>
+
+                <input
+                    type="number"
+                    id="precioEvento"
+                    placeholder="Ej: 50000"
+                    min="0"
+                    required
+                >
+                <label for="imagenEvento">
+                     URL de la imagen
+                    </label>
+                    <input
+                    type="url"
+                    id="imagenEvento"
+                    placeholder="https://ejemplo.com/imagen.jpg"
+>
+
+
+                <button
+                    type="submit"
+                    class="btn-principal"
+                >
+                    Crear evento
+                </button>
+
+
+                <p
+                    id="mensajeEvento"
+                    class="mensaje-evento"
+                ></p>
+
+            </form>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <h3>Elite Events</h3>
+
+        <p>
+            Organiza, descubre y disfruta de tus eventos.
+        </p>
+
+    </footer>
+
+
+    <!-- JAVASCRIPT -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>

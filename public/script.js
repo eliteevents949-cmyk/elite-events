@@ -530,221 +530,254 @@ document.addEventListener(
 
     }
 );
+
 // ========================================
 // CREAR EVENTO
 // ========================================
 
-async function crearEvento(event) {
+const formularioEvento =
+    document.getElementById("formEvento");
 
-    event.preventDefault();
+if (formularioEvento) {
 
-    const nombre =
-        document.getElementById("nombreEvento").value.trim();
+    formularioEvento.addEventListener(
+        "submit",
+        async function(event) {
 
-    const descripcion =
-        document.getElementById("descripcionEvento").value.trim();
+            event.preventDefault();
 
-    const fecha =
-        document.getElementById("fechaEvento").value;
-
-    const lugar =
-        document.getElementById("lugarEvento").value.trim();
-
-    const categoria =
-        document.getElementById("categoriaEvento").value;
-
-    const hora =
-        document.getElementById("horaEvento").value;
-
-    const precio =
-        document.getElementById("precioEvento").value;
-
-    const mensaje =
-        document.getElementById("mensajeEvento");
-
-
-    mensaje.textContent =
-        "Guardando evento...";
-
-
-    try {
-
-        const respuesta = await fetch(
-            "/api/eventos",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-
-                    nombre,
-                    descripcion,
-                    fecha,
-                    lugar,
-                    categoria,
-                    hora,
-                    precio,
-                    imagen: null
-
-                })
-            }
-        );
-
-
-        const datos =
-            await respuesta.json();
-
-
-        if (!respuesta.ok) {
-
-            mensaje.textContent =
-                "❌ " +
-                (
-                    datos.mensaje ||
-                    "No se pudo guardar el evento"
+            const mensaje =
+                document.getElementById(
+                    "mensajeEvento"
                 );
 
-            return;
+            const nombre =
+                document.getElementById(
+                    "nombreEvento"
+                ).value.trim();
+
+            const categoria =
+                document.getElementById(
+                    "categoriaEvento"
+                ).value;
+
+            const descripcion =
+                document.getElementById(
+                    "descripcionEvento"
+                ).value.trim();
+
+            const fecha =
+                document.getElementById(
+                    "fechaEvento"
+                ).value;
+
+            const hora =
+                document.getElementById(
+                    "horaEvento"
+                ).value;
+
+            const lugar =
+                document.getElementById(
+                    "lugarEvento"
+                ).value.trim();
+
+            const precio =
+                document.getElementById(
+                    "precioEvento"
+                ).value;
+
+            const imagen =
+                document.getElementById(
+                    "imagenEvento"
+                ).value.trim();
+
+
+            mensaje.textContent =
+                "Guardando evento...";
+
+
+            try {
+
+                const respuesta =
+                    await fetch(
+                        "/api/eventos",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                nombre: nombre,
+
+                                categoria: categoria,
+
+                                descripcion: descripcion,
+
+                                fecha: fecha,
+
+                                hora: hora,
+
+                                lugar: lugar,
+
+                                precio: precio,
+
+                                imagen: imagen || null
+
+                            })
+                        }
+                    );
+
+
+                const datos =
+                    await respuesta.json();
+
+
+                if (!respuesta.ok) {
+
+                    mensaje.textContent =
+                        "❌ " +
+                        (datos.mensaje ||
+                        "No se pudo guardar el evento.");
+
+                    return;
+                }
+
+
+                mensaje.innerHTML =
+                    "🎉 <strong>¡Evento guardado correctamente!</strong>";
+
+
+                formularioEvento.reset();
+
+
+            } catch (error) {
+
+                console.error(
+                    "ERROR:",
+                    error
+                );
+
+                mensaje.textContent =
+                    "❌ Error al guardar el evento.";
+            }
+
         }
-
-
-        // ✅ ÉXITO
-        mensaje.textContent =
-            "✅ Evento guardado correctamente";
-
-        mensaje.style.display =
-            "block";
-
-
-        // Limpiar formulario
-        document
-            .getElementById("formEvento")
-            .reset();
-
-
-        // Ir a eventos después de 2 segundos
-        setTimeout(() => {
-
-            window.location.href =
-                "eventos.html";
-
-        }, 2000);
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        mensaje.textContent =
-            "❌ No se pudo conectar con el servidor.";
-    }
+    );
 }
-async function crearEvento(event) {
+// ========================================
+// MOSTRAR EVENTOS
+// ========================================
 
-    event.preventDefault();
+const listaEventos = document.getElementById("listaEventos");
 
-    console.log("✅ La función crearEvento sí se ejecutó");
+if (listaEventos) {
+    cargarEventos();
+}
 
-    const nombre =
-        document.getElementById("nombreEvento").value.trim();
-
-    const descripcion =
-        document.getElementById("descripcionEvento").value.trim();
-
-    const fecha =
-        document.getElementById("fechaEvento").value;
-
-    const lugar =
-        document.getElementById("lugarEvento").value.trim();
-
-    const categoria =
-        document.getElementById("categoriaEvento").value;
-
-    const hora =
-        document.getElementById("horaEvento").value;
-
-    const precio =
-        document.getElementById("precioEvento").value;
-
-    const mensaje =
-        document.getElementById("mensajeEvento");
-
-
-    mensaje.textContent = "Guardando evento...";
-
+async function cargarEventos() {
 
     try {
 
-        const respuesta = await fetch("/api/eventos", {
-
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-
-                nombre,
-                descripcion,
-                fecha,
-                lugar,
-                categoria,
-                hora,
-                precio,
-                imagen: null
-
-            })
-
-        });
-
-
-        const datos =
-            await respuesta.json();
-
-
-        console.log("Respuesta del servidor:", datos);
-
+        const respuesta = await fetch("/api/eventos");
 
         if (!respuesta.ok) {
+            throw new Error("No se pudieron cargar los eventos");
+        }
 
-            mensaje.textContent =
-                "❌ " +
-                (datos.mensaje ||
-                "No se pudo guardar el evento");
+        const eventos = await respuesta.json();
 
+        listaEventos.innerHTML = "";
+
+        if (eventos.length === 0) {
+            listaEventos.innerHTML = `
+                <p>No hay eventos disponibles.</p>
+            `;
             return;
         }
 
+        eventos.forEach(function(evento) {
 
-        mensaje.textContent =
-            "✅ Evento guardado correctamente";
+            const tarjeta = document.createElement("div");
 
+            tarjeta.classList.add("tarjeta-evento");
 
-        document
-            .getElementById("formEvento")
-            .reset();
+            const imagenEvento =
+                evento.imagen ||
+                (
+                    evento.categoria === "Música"
+                        ? "https://pixabay.com/es/music/"
 
+                        : evento.categoria === "Tecnología"
+                        ? "https://www.google.com/imgres?q=tecnologia%20evento&imgurl=https%3A%2F%2Fwww.muycomputerpro.com%2Fwp-content%2Fuploads%2F2020%2F01%2Fescenario-1000x600.jpeg&imgrefurl=https%3A%2F%2Fwww.muycomputerpro.com%2F2020%2F01%2F08%2Fguia-mcpro-eventos-tecnologicos&docid=bU9GXpmPZpvVBM&tbnid=9bM6d-fCEWw4aM&vet=12ahUKEwiajJykkeKWAxVIfzABHd9MHUEQnPAOegQIMhAA..i&w=1000&h=600&hcb=2&ved=2ahUKEwiajJykkeKWAxVIfzABHd9MHUEQnPAOegQIMhAA"
 
-        setTimeout(() => {
+                        : evento.categoria === "Arte"
+                        ? "https://www.google.com/imgres?q=arte%20evento&imgurl=https%3A%2F%2Fwww.1st-art-gallery.com%2Fcdn-cgi%2Fimage%2Fformat%3Dwebp%2Cquality%3D85%2Cwidth%3D380%2Fmedia%2Fmagefan_blog%2Fcelebrations-and-festivals-around-the-world.jpg&imgrefurl=https%3A%2F%2Fwww.1st-art-gallery.com%2Fes%2Farticle%2Fdiscover-the-worlds-finest-art-festivals-celebrating-creativity-and-culture%2F%3Fsrsltid%3DAfmBOoobQhwz2VXTOVjNnBBat4l0bW7y4W77q5NGDbFa1jlomted0kMt&docid=B11CZr5CnKlm0M&tbnid=Nr2y55RMpCO1NM&vet=12ahUKEwjarLy4keKWAxVuTDABHYxIISYQnPAOegQIfBAA..i&w=380&h=285&hcb=2&ved=2ahUKEwjarLy4keKWAxVuTDABHYxIISYQnPAOegQIfBAA"
 
-            window.location.href =
-                "eventos.html";
+                        : "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80"
+                );
 
-        }, 2000);
+            tarjeta.innerHTML = `
 
+                <div class="imagen-evento">
+
+                    <img
+                        src="${imagenEvento}"
+                        alt="${evento.nombre}"
+                        onerror="this.src='hptt //:3000/public/img/imagen-no-disponible.jpg"
+                    >
+
+                </div>
+
+                <div class="contenido-evento">
+
+                    <h2>${evento.nombre}</h2>
+
+                    <p>📂 ${evento.categoria}</p>
+
+                    <p>📅 ${evento.fecha}</p>
+
+                    <p>🕐 ${evento.hora}</p>
+
+                    <p>📍 ${evento.lugar}</p>
+
+                    <p>
+                        💰 $${Number(evento.precio)
+                            .toLocaleString("es-CO")}
+                    </p>
+
+                    <p>
+                        ${evento.descripcion || ""}
+                    </p>
+
+                    <button
+                        class="btn-principal"
+                        onclick="reservar(${evento.id})"
+                    >
+                        🎟️ Reservar entrada
+                    </button>
+
+                </div>
+            `;
+
+            listaEventos.appendChild(tarjeta);
+
+        });
 
     } catch (error) {
 
         console.error(
-            "ERROR:",
+            "ERROR CARGANDO EVENTOS:",
             error
         );
 
-        mensaje.textContent =
-            "❌ No se pudo conectar con el servidor.";
+        listaEventos.innerHTML = `
+            <p>
+                ❌ No se pudieron cargar los eventos.
+            </p>
+        `;
     }
 }
