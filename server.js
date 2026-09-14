@@ -46,6 +46,13 @@ app.use(
     "/api/usuarios",
     usuariosRoutes
 );
+const notificacionesRoutes =
+    require("./src/routers/notificaciones.routes");
+
+app.use(
+    "/api/notificaciones",
+    notificacionesRoutes
+);
 
 
 // ========================================

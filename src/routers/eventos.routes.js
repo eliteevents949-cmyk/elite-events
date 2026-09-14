@@ -1,4 +1,5 @@
 const express = require("express");
+const multer = require("multer");
 
 const eventosController =
     require("../controllers/eventos.controller");
@@ -6,21 +7,62 @@ const eventosController =
 const router = express.Router();
 
 
-// Obtener todos los eventos
+// ========================================
+// CONFIGURACIÓN PARA GUARDAR IMÁGENES
+// ========================================
+
+const storage = multer.diskStorage({
+
+    destination: function (req, file, cb) {
+
+        cb(null, "public/uploads");
+
+    },
+
+    filename: function (req, file, cb) {
+
+        const nombreArchivo =
+            Date.now() +
+            "-" +
+            file.originalname.replace(/\s+/g, "-");
+
+        cb(null, nombreArchivo);
+
+    }
+
+});
+
+
+const upload = multer({
+    storage: storage
+});
+
+
+// ========================================
+// OBTENER TODOS LOS EVENTOS
+// ========================================
+
 router.get(
     "/",
     eventosController.obtenerEventos
 );
 
 
-// Crear un evento
+// ========================================
+// CREAR UN EVENTO
+// ========================================
+
 router.post(
     "/",
+    upload.single("imagen"),
     eventosController.crearEvento
 );
 
 
-// Eliminar un evento
+// ========================================
+// ELIMINAR UN EVENTO
+// ========================================
+
 router.delete(
     "/:id",
     eventosController.eliminarEvento

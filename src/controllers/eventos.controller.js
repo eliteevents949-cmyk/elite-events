@@ -23,7 +23,8 @@ async function obtenerEventos(req, res) {
         );
 
         res.status(500).json({
-            mensaje: "No se pudieron obtener los eventos"
+            mensaje:
+                "No se pudieron obtener los eventos"
         });
     }
 }
@@ -45,11 +46,14 @@ async function crearEvento(req, res) {
             lugar,
             precio,
             descripcion,
-            imagen
+            creado_por
         } = req.body;
 
 
-        // Validar campos obligatorios
+        // ========================================
+        // VALIDAR CAMPOS OBLIGATORIOS
+        // ========================================
+
         if (
             !nombre ||
             !categoria ||
@@ -59,23 +63,68 @@ async function crearEvento(req, res) {
         ) {
 
             return res.status(400).json({
+
                 mensaje:
                     "Faltan campos obligatorios"
+
             });
         }
 
 
+        // ========================================
+        // VALIDAR USUARIO
+        // ========================================
+
+        const usuarioId =
+            Number(creado_por);
+
+
+        if (
+            !Number.isInteger(usuarioId) ||
+            usuarioId <= 0
+        ) {
+
+            return res.status(401).json({
+
+                mensaje:
+                    "Debes iniciar sesión para crear un evento"
+
+            });
+        }
+
+
+        // ========================================
+        // OBTENER IMAGEN
+        // ========================================
+
+        let imagen = null;
+
+        if (req.file) {
+
+            imagen =
+                "/uploads/" + req.file.filename;
+
+        }
+
+
+        // ========================================
+        // CREAR OBJETO EVENTO
+        // ========================================
+
         const evento = {
 
-            nombre: nombre.trim(),
+            nombre:
+                nombre.trim(),
 
-            categoria: categoria.trim(),
+            categoria:
+                categoria.trim(),
 
             fecha,
 
             hora,
 
-            lugar: lugar.trim(),
+            lugar:
+                lugar.trim(),
 
             precio:
                 Number(precio) || 0,
@@ -85,8 +134,10 @@ async function crearEvento(req, res) {
                     ? descripcion.trim()
                     : "",
 
-            imagen:
-                imagen || null
+            imagen,
+
+            creado_por:
+                usuarioId
 
         };
 
@@ -97,6 +148,10 @@ async function crearEvento(req, res) {
         );
 
 
+        // ========================================
+        // GUARDAR EN MYSQL
+        // ========================================
+
         const resultado =
             await eventosService.crearEvento(
                 evento
@@ -104,8 +159,13 @@ async function crearEvento(req, res) {
 
 
         res.status(201).json({
-            mensaje: "Evento guardado correctamente",
-            id: resultado.insertId
+
+            mensaje:
+                "Evento guardado correctamente",
+
+            id:
+                resultado.insertId
+
         });
 
 

@@ -55,9 +55,10 @@ async function crearEvento(evento) {
                 lugar,
                 precio,
                 descripcion,
-                imagen
+                imagen,
+                creado_por
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const valores = [
@@ -76,10 +77,11 @@ async function crearEvento(evento) {
 
             evento.descripcion,
 
-            evento.imagen
+            evento.imagen,
+
+            evento.creado_por
 
         ];
-
 
         db.query(
             sql,

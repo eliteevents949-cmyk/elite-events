@@ -7,7 +7,6 @@
 
     <title>Crear evento - Elite Events</title>
 
-    <!-- CSS PRINCIPAL -->
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -29,6 +28,7 @@
         </nav>
 
         <div class="cuenta">
+
             <a href="login.html" class="btn-login">
                 Iniciar sesión
             </a>
@@ -36,6 +36,7 @@
             <a href="registro.html" class="btn-registro">
                 Registrarse
             </a>
+
         </div>
 
     </header>
@@ -66,6 +67,7 @@
                 </label>
 
                 <select id="categoriaEvento" required>
+
                     <option value="">
                         Selecciona una categoría
                     </option>
@@ -89,6 +91,7 @@
                     <option value="Cultura">
                         Cultura
                     </option>
+
                 </select>
 
 
@@ -148,14 +151,19 @@
                     min="0"
                     required
                 >
+
+
+                <!-- IMAGEN DEL EVENTO -->
+
                 <label for="imagenEvento">
-                     URL de la imagen
-                    </label>
-                    <input
-                    type="url"
+                    Imagen del evento
+                </label>
+
+                <input
+                    type="file"
                     id="imagenEvento"
-                    placeholder="https://ejemplo.com/imagen.jpg"
->
+                    accept="image/png, image/jpeg, image/webp"
+                >
 
 
                 <button
@@ -186,10 +194,13 @@
             Organiza, descubre y disfruta de tus eventos.
         </p>
 
+        <p>
+            © 2026 Elite Events
+        </p>
+
     </footer>
 
 
-    <!-- JAVASCRIPT -->
     <script src="script.js"></script>
 
 </body>

@@ -19,16 +19,20 @@ if (formularioRegistro) {
             event.preventDefault();
 
             const nombre =
-                document.getElementById("nombreRegistro").value.trim();
+                document.getElementById("nombreRegistro")
+                    .value.trim();
 
             const apellido =
-                document.getElementById("apellidoRegistro").value.trim();
+                document.getElementById("apellidoRegistro")
+                    .value.trim();
 
             const correo =
-                document.getElementById("correoRegistro").value.trim();
+                document.getElementById("correoRegistro")
+                    .value.trim();
 
             const password =
-                document.getElementById("passwordRegistro").value;
+                document.getElementById("passwordRegistro")
+                    .value;
 
             const mensaje =
                 document.getElementById("mensajeRegistro");
@@ -149,7 +153,6 @@ if (formularioLogin) {
                     return;
                 }
 
-                // Guardar usuario de MySQL
                 localStorage.setItem(
                     "usuario",
                     JSON.stringify(datos.usuario)
@@ -188,7 +191,6 @@ async function reservar(eventoId) {
             localStorage.getItem("usuario")
         );
 
-
     if (!usuario) {
 
         alert(
@@ -201,7 +203,6 @@ async function reservar(eventoId) {
         return;
     }
 
-
     if (!usuario.id) {
 
         alert(
@@ -210,7 +211,6 @@ async function reservar(eventoId) {
 
         return;
     }
-
 
     try {
 
@@ -232,15 +232,12 @@ async function reservar(eventoId) {
 
                         eventoId:
                             eventoId
-
                     })
                 }
             );
 
-
         const datos =
             await respuesta.json();
-
 
         if (!respuesta.ok) {
 
@@ -260,15 +257,12 @@ async function reservar(eventoId) {
             return;
         }
 
-
         alert(
             "🎟️ ¡Reserva guardada correctamente!"
         );
 
-
         window.location.href =
             "reservas.html";
-
 
     } catch (error) {
 
@@ -294,11 +288,11 @@ async function mostrarReservas() {
         return;
     }
 
-    const usuario = JSON.parse(
-        localStorage.getItem("usuario")
-    );
+    const usuario =
+        JSON.parse(
+            localStorage.getItem("usuario")
+        );
 
-    // Comprobar sesión
     if (!usuario) {
 
         contenedor.innerHTML = `
@@ -324,7 +318,6 @@ async function mostrarReservas() {
         return;
     }
 
-    // Comprobar ID
     if (!usuario.id) {
 
         contenedor.innerHTML = `
@@ -365,7 +358,6 @@ async function mostrarReservas() {
             return;
         }
 
-        // No hay reservas
         if (
             !Array.isArray(reservas) ||
             reservas.length === 0
@@ -394,10 +386,8 @@ async function mostrarReservas() {
             return;
         }
 
-        // Limpiar contenedor
         contenedor.innerHTML = "";
 
-        // Mostrar reservas
         reservas.forEach(function (reserva) {
 
             const tarjeta =
@@ -495,9 +485,10 @@ function mostrarUsuario() {
         return;
     }
 
-    const usuario = JSON.parse(
-        localStorage.getItem("usuario")
-    );
+    const usuario =
+        JSON.parse(
+            localStorage.getItem("usuario")
+        );
 
     if (!usuario) {
 
@@ -530,6 +521,7 @@ document.addEventListener(
 
     }
 );
+
 
 // ========================================
 // CREAR EVENTO
@@ -586,73 +578,98 @@ if (formularioEvento) {
                     "precioEvento"
                 ).value;
 
-            const imagen =
+            const archivoImagen =
                 document.getElementById(
                     "imagenEvento"
-                ).value.trim();
-
+                ).files[0];
+            const usuario =
+            JSON.parse(
+                localStorage.getItem("usuario")
+            );
 
             mensaje.textContent =
                 "Guardando evento...";
 
-
             try {
+
+                const formularioDatos =
+                    new FormData();
+
+                formularioDatos.append(
+                    "nombre",
+                    nombre
+                );
+
+                formularioDatos.append(
+                    "categoria",
+                    categoria
+                );
+
+                formularioDatos.append(
+                    "descripcion",
+                    descripcion
+                );
+
+                formularioDatos.append(
+                    "fecha",
+                    fecha
+                );
+
+                formularioDatos.append(
+                    "hora",
+                    hora
+                );
+
+                formularioDatos.append(
+                    "lugar",
+                    lugar
+                );
+
+                formularioDatos.append(
+                    "precio",
+                    precio
+                );
+                formularioDatos.append(
+                    "creado_por",
+                    usuario.id
+                );
+
+                if (archivoImagen) {
+
+                    formularioDatos.append(
+                        "imagen",
+                        archivoImagen
+                    );
+                }
 
                 const respuesta =
                     await fetch(
                         "/api/eventos",
                         {
                             method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body: JSON.stringify({
-
-                                nombre: nombre,
-
-                                categoria: categoria,
-
-                                descripcion: descripcion,
-
-                                fecha: fecha,
-
-                                hora: hora,
-
-                                lugar: lugar,
-
-                                precio: precio,
-
-                                imagen: imagen || null
-
-                            })
+                            body: formularioDatos
                         }
                     );
 
-
                 const datos =
                     await respuesta.json();
-
 
                 if (!respuesta.ok) {
 
                     mensaje.textContent =
                         "❌ " +
-                        (datos.mensaje ||
-                        "No se pudo guardar el evento.");
+                        (
+                            datos.mensaje ||
+                            "No se pudo guardar el evento."
+                        );
 
                     return;
                 }
 
-
                 mensaje.innerHTML =
                     "🎉 <strong>¡Evento guardado correctamente!</strong>";
 
-
                 formularioEvento.reset();
-
 
             } catch (error) {
 
@@ -668,116 +685,152 @@ if (formularioEvento) {
         }
     );
 }
+
+
 // ========================================
 // MOSTRAR EVENTOS
 // ========================================
 
-const listaEventos = document.getElementById("listaEventos");
+const listaEventos =
+    document.getElementById(
+        "listaEventos"
+    );
 
 if (listaEventos) {
+
     cargarEventos();
 }
+
 
 async function cargarEventos() {
 
     try {
 
-        const respuesta = await fetch("/api/eventos");
+        const respuesta =
+            await fetch(
+                "/api/eventos"
+            );
 
         if (!respuesta.ok) {
-            throw new Error("No se pudieron cargar los eventos");
+
+            throw new Error(
+                "No se pudieron cargar los eventos"
+            );
         }
 
-        const eventos = await respuesta.json();
+        const eventos =
+            await respuesta.json();
 
-        listaEventos.innerHTML = "";
+        listaEventos.innerHTML =
+            "";
 
-        if (eventos.length === 0) {
+        if (
+            !Array.isArray(eventos) ||
+            eventos.length === 0
+        ) {
+
             listaEventos.innerHTML = `
-                <p>No hay eventos disponibles.</p>
+                <p>
+                    No hay eventos disponibles.
+                </p>
             `;
+
             return;
         }
 
-        eventos.forEach(function(evento) {
+        eventos.forEach(
+            function(evento) {
 
-            const tarjeta = document.createElement("div");
+                const tarjeta =
+                    document.createElement(
+                        "div"
+                    );
 
-            tarjeta.classList.add("tarjeta-evento");
-
-            const imagenEvento =
-                evento.imagen ||
-                (
-                    evento.categoria === "Música"
-                        ? "https://pixabay.com/es/music/"
-
-                        : evento.categoria === "Tecnología"
-                        ? "https://www.google.com/imgres?q=tecnologia%20evento&imgurl=https%3A%2F%2Fwww.muycomputerpro.com%2Fwp-content%2Fuploads%2F2020%2F01%2Fescenario-1000x600.jpeg&imgrefurl=https%3A%2F%2Fwww.muycomputerpro.com%2F2020%2F01%2F08%2Fguia-mcpro-eventos-tecnologicos&docid=bU9GXpmPZpvVBM&tbnid=9bM6d-fCEWw4aM&vet=12ahUKEwiajJykkeKWAxVIfzABHd9MHUEQnPAOegQIMhAA..i&w=1000&h=600&hcb=2&ved=2ahUKEwiajJykkeKWAxVIfzABHd9MHUEQnPAOegQIMhAA"
-
-                        : evento.categoria === "Arte"
-                        ? "https://www.google.com/imgres?q=arte%20evento&imgurl=https%3A%2F%2Fwww.1st-art-gallery.com%2Fcdn-cgi%2Fimage%2Fformat%3Dwebp%2Cquality%3D85%2Cwidth%3D380%2Fmedia%2Fmagefan_blog%2Fcelebrations-and-festivals-around-the-world.jpg&imgrefurl=https%3A%2F%2Fwww.1st-art-gallery.com%2Fes%2Farticle%2Fdiscover-the-worlds-finest-art-festivals-celebrating-creativity-and-culture%2F%3Fsrsltid%3DAfmBOoobQhwz2VXTOVjNnBBat4l0bW7y4W77q5NGDbFa1jlomted0kMt&docid=B11CZr5CnKlm0M&tbnid=Nr2y55RMpCO1NM&vet=12ahUKEwjarLy4keKWAxVuTDABHYxIISYQnPAOegQIfBAA..i&w=380&h=285&hcb=2&ved=2ahUKEwjarLy4keKWAxVuTDABHYxIISYQnPAOegQIfBAA"
-
-                        : "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80"
+                tarjeta.classList.add(
+                    "tarjeta-evento"
                 );
 
-            tarjeta.innerHTML = `
+                tarjeta.innerHTML = `
 
-                <div class="imagen-evento">
+                    ${
+                        evento.imagen
+                        ? `
+                            <div class="imagen-evento">
 
-                    <img
-                        src="${imagenEvento}"
-                        alt="${evento.nombre}"
-                        onerror="this.src='hptt //:3000/public/img/imagen-no-disponible.jpg"
-                    >
+                                <img
+                                    src="/uploads/${evento.imagen}"
+                                    alt="${evento.nombre}"
+                                >
 
-                </div>
+                            </div>
+                        `
+                        : ""
+                    }
 
-                <div class="contenido-evento">
+                    <div class="contenido-evento">
 
-                    <h2>${evento.nombre}</h2>
+                        <h2>
+                            ${evento.nombre}
+                        </h2>
 
-                    <p>📂 ${evento.categoria}</p>
+                        <p>
+                            <strong>Categoría:</strong>
+                            ${evento.categoria || "Sin categoría"}
+                        </p>
 
-                    <p>📅 ${evento.fecha}</p>
+                        <p>
+                            <strong>Fecha:</strong>
+                            ${evento.fecha || "Sin fecha"}
+                        </p>
 
-                    <p>🕐 ${evento.hora}</p>
+                        <p>
+                            <strong>Hora:</strong>
+                            ${evento.hora || "Sin hora"}
+                        </p>
 
-                    <p>📍 ${evento.lugar}</p>
+                        <p>
+                            <strong>Lugar:</strong>
+                            ${evento.lugar || "Sin lugar"}
+                        </p>
 
-                    <p>
-                        💰 $${Number(evento.precio)
-                            .toLocaleString("es-CO")}
-                    </p>
+                        <p>
+                            <strong>Precio:</strong>
+                            $${evento.precio || 0}
+                        </p>
 
-                    <p>
-                        ${evento.descripcion || ""}
-                    </p>
+                        <p>
+                            ${evento.descripcion || "Sin descripción"}
+                        </p>
 
-                    <button
-                        class="btn-principal"
-                        onclick="reservar(${evento.id})"
-                    >
-                        🎟️ Reservar entrada
-                    </button>
+                        <button
+                            class="btn-principal"
+                            onclick="reservar(${evento.id})"
+                        >
+                            🎟️ Reservar
+                        </button>
 
-                </div>
-            `;
+                    </div>
+                `;
 
-            listaEventos.appendChild(tarjeta);
+                listaEventos.appendChild(
+                    tarjeta
+                );
 
-        });
+            }
+        );
 
     } catch (error) {
 
         console.error(
-            "ERROR CARGANDO EVENTOS:",
+            "Error al cargar eventos:",
             error
         );
 
         listaEventos.innerHTML = `
             <p>
-                ❌ No se pudieron cargar los eventos.
+                ❌ Error al cargar los eventos.
             </p>
         `;
     }
 }
+                

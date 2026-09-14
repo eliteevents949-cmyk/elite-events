@@ -1,5 +1,8 @@
 const db = require("../config/database");
 
+const correoService =
+    require("./correo.services");
+
 
 // ========================================
 // CREAR RESERVA
@@ -9,11 +12,20 @@ async function crearReserva(usuarioId, eventoId) {
 
     return new Promise((resolve, reject) => {
 
-        // Comprobar que el evento existe
+        // ========================================
+        // BUSCAR EVENTO, DUEÑO Y CORREO
+        // ========================================
+
         const buscarEvento = `
-            SELECT id
+            SELECT
+                eventos.id,
+                eventos.nombre,
+                eventos.creado_por,
+                usuarios.correo AS correo_creador
             FROM eventos
-            WHERE id = ?
+            LEFT JOIN usuarios
+                ON eventos.creado_por = usuarios.id
+            WHERE eventos.id = ?
         `;
 
         db.query(
@@ -22,6 +34,7 @@ async function crearReserva(usuarioId, eventoId) {
             (error, resultados) => {
 
                 if (error) {
+
                     console.log(
                         "Error buscando evento:",
                         error
@@ -42,8 +55,13 @@ async function crearReserva(usuarioId, eventoId) {
                     return;
                 }
 
+                const evento = resultados[0];
 
-                // Guardar reserva
+
+                // ========================================
+                // GUARDAR RESERVA
+                // ========================================
+
                 const sql = `
                     INSERT INTO reservas
                     (usuario_id, evento_id)
@@ -53,7 +71,7 @@ async function crearReserva(usuarioId, eventoId) {
                 db.query(
                     sql,
                     [usuarioId, eventoId],
-                    (error, resultado) => {
+                    async (error, resultado) => {
 
                         if (error) {
 
@@ -66,7 +84,89 @@ async function crearReserva(usuarioId, eventoId) {
                             return;
                         }
 
-                        resolve(resultado);
+
+                        // ========================================
+                        // CREAR NOTIFICACIÓN
+                        // ========================================
+
+                        if (
+                            evento.creado_por &&
+                            Number(evento.creado_por) !==
+                            Number(usuarioId)
+                        ) {
+
+                            const mensaje =
+                                `🎟️ Un usuario se ha inscrito a tu evento "${evento.nombre}".`;
+
+                            const notificacion = `
+                                INSERT INTO notificaciones
+                                (usuario_id, mensaje)
+                                VALUES (?, ?)
+                            `;
+
+                            db.query(
+                                notificacion,
+                                [
+                                    evento.creado_por,
+                                    mensaje
+                                ],
+                                async (error) => {
+
+                                    if (error) {
+
+                                        console.log(
+                                            "Error creando notificación:",
+                                            error
+                                        );
+
+                                        // La reserva ya se guardó.
+                                        // No la eliminamos por un
+                                        // problema con la notificación.
+
+                                    }
+
+
+                                    // ========================================
+                                    // ENVIAR CORREO
+                                    // ========================================
+
+                                    if (evento.correo_creador) {
+
+                                        try {
+
+                                            await correoService
+                                                .enviarNotificacion(
+                                                    evento.correo_creador,
+                                                    evento.nombre
+                                                );
+
+                                            console.log(
+                                                "📧 Correo enviado correctamente"
+                                            );
+
+                                        } catch (error) {
+
+                                            console.log(
+                                                "Error enviando correo:",
+                                                error
+                                            );
+
+                                        }
+
+                                    }
+
+
+                                    resolve(resultado);
+
+                                }
+                            );
+
+                        } else {
+
+                            resolve(resultado);
+
+                        }
+
                     }
                 );
             }
@@ -103,6 +203,7 @@ async function obtenerReservas(usuarioId) {
             (error, resultados) => {
 
                 if (error) {
+
                     console.log(
                         "Error obteniendo reservas:",
                         error
@@ -118,6 +219,10 @@ async function obtenerReservas(usuarioId) {
     });
 }
 
+
+// ========================================
+// EXPORTAR
+// ========================================
 
 module.exports = {
     crearReserva,
