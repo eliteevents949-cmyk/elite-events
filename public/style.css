@@ -109,8 +109,13 @@ nav a.activo::after {
     text-decoration: none;
 }
 
-.btn-login {
+.btn-login,
+.btn-cerrar-sesion {
+    background: transparent;
+    border: 0;
     color: white;
+    cursor: pointer;
+    font-family: inherit;
     padding: 9px 14px;
     font-size: 15px;
     font-weight: 500;
@@ -118,7 +123,8 @@ nav a.activo::after {
     transition: opacity 0.15s ease;
 }
 
-.btn-login:hover {
+.btn-login:hover,
+.btn-cerrar-sesion:hover {
     opacity: 1;
 }
 
@@ -231,6 +237,7 @@ nav a.activo::after {
 .botones {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 12px;
 }
 
@@ -275,6 +282,14 @@ nav a.activo::after {
 .btn-secundario:hover {
     border-color: var(--morado);
     color: var(--morado);
+}
+
+form > .btn-principal,
+.tarjeta-evento .btn-principal,
+.reserva-vacia .btn-principal {
+    align-self: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 
@@ -816,4 +831,96 @@ select:focus {
 /* Texto del hero */
 .hero-text {
     width: 55%;
+}
+.notificacion {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+
+    background: white;
+    color: #333;
+
+    padding: 16px 20px;
+    border-radius: 12px;
+
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    z-index: 9999;
+
+    font-size: 15px;
+
+    animation: aparecer 0.4s ease;
+}
+
+.notificacion button {
+    border: none;
+    background: none;
+
+    font-size: 20px;
+    color: #777;
+
+    cursor: pointer;
+}
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* =========================
+   ICONOS HEROICONS
+========================= */
+
+/* Iconos del menú */
+nav a,
+.cuenta a,
+.cuenta button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Iconos dentro de los labels */
+label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+/* Tamaño y alineación general de los SVG */
+nav svg,
+.cuenta svg,
+label svg,
+button svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* Iconos de los botones */
+.btn-principal svg,
+.btn-secundario svg {
+    margin-right: 7px;
+}
+
+/* Efecto suave para los iconos del menú */
+nav a svg,
+.cuenta a svg {
+    transition: transform 0.15s ease;
+}
+
+/* Pequeño movimiento al pasar el mouse */
+nav a:hover svg,
+.cuenta a:hover svg {
+    transform: translateY(-1px);
 }

@@ -105,7 +105,7 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
 
     console.log(
-        `🎉 Elite Events funcionando en http://localhost:${PORT}`
+        ` Elite Events funcionando en http://localhost:${PORT}`
     );
 
 });
