@@ -31,6 +31,45 @@ async function obtenerEventos(req, res) {
 
 
 // ========================================
+// OBTENER EVENTOS DEL USUARIO
+// ========================================
+
+async function obtenerEventosPorUsuario(req, res) {
+
+    try {
+
+        const usuarioId =
+            Number(req.params.usuarioId);
+
+        if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
+
+            return res.status(400).json({
+                mensaje: "ID de usuario inválido"
+            });
+        }
+
+        const eventos =
+            await eventosService.obtenerEventosPorUsuario(
+                usuarioId
+            );
+
+        res.json(eventos);
+
+    } catch (error) {
+
+        console.error(
+            "ERROR OBTENIENDO EVENTOS DEL USUARIO:",
+            error
+        );
+
+        res.status(500).json({
+            mensaje: "No se pudieron obtener tus eventos"
+        });
+    }
+}
+
+
+// ========================================
 // CREAR EVENTO
 // ========================================
 
@@ -46,6 +85,7 @@ async function crearEvento(req, res) {
             lugar,
             precio,
             descripcion,
+            boletas,
             creado_por
         } = req.body;
 
@@ -59,7 +99,8 @@ async function crearEvento(req, res) {
             !categoria ||
             !fecha ||
             !hora ||
-            !lugar
+            !lugar ||
+            !boletas
         ) {
 
             return res.status(400).json({
@@ -78,6 +119,9 @@ async function crearEvento(req, res) {
         const usuarioId =
             Number(creado_por);
 
+        const boletasDisponibles =
+            Number(boletas);
+
 
         if (
             !Number.isInteger(usuarioId) ||
@@ -89,6 +133,16 @@ async function crearEvento(req, res) {
                 mensaje:
                     "Debes iniciar sesión para crear un evento"
 
+            });
+        }
+
+        if (
+            !Number.isInteger(boletasDisponibles) ||
+            boletasDisponibles <= 0
+        ) {
+
+            return res.status(400).json({
+                mensaje: "La cantidad de boletas debe ser un entero mayor que cero"
             });
         }
 
@@ -128,6 +182,9 @@ async function crearEvento(req, res) {
 
             precio:
                 Number(precio) || 0,
+
+            boletas:
+                boletasDisponibles,
 
             descripcion:
                 descripcion
@@ -269,6 +326,8 @@ async function eliminarEvento(req, res) {
 module.exports = {
 
     obtenerEventos,
+
+    obtenerEventosPorUsuario,
 
     crearEvento,
 

@@ -38,8 +38,14 @@ async function crearReserva(req, res) {
 
         console.log("ERROR RESERVA:", error);
 
-        res.status(500).json({
-            mensaje: "Error al guardar la reserva",
+        const sinBoletas =
+            error.message ===
+            "No hay boletas disponibles para este evento";
+
+        res.status(sinBoletas ? 409 : 500).json({
+            mensaje: sinBoletas
+                ? error.message
+                : "Error al guardar la reserva",
             error: error.message
         });
     }

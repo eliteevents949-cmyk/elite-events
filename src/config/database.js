@@ -27,6 +27,38 @@ connection.connect((error) => {
 
     console.log("✅ Conectado a MySQL");
 
+    connection.query(
+        `
+            SELECT COUNT(*) AS existe
+            FROM information_schema.columns
+            WHERE table_schema = DATABASE()
+              AND table_name = 'eventos'
+              AND column_name = 'boletas_disponibles'
+        `,
+        (error, resultados) => {
+
+            if (error || resultados[0].existe > 0) {
+                return;
+            }
+
+            connection.query(
+                `
+                    ALTER TABLE eventos
+                    ADD COLUMN boletas_disponibles INT NOT NULL DEFAULT 100
+                `,
+                (error) => {
+
+                    if (error) {
+                        console.log(
+                            "Error agregando el límite de boletas:",
+                            error.message
+                        );
+                    }
+                }
+            );
+        }
+    );
+
 });
 
 module.exports = connection;

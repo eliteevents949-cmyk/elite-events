@@ -49,6 +49,16 @@ router.get(
 
 
 // ========================================
+// OBTENER EVENTOS DEL USUARIO
+// ========================================
+
+router.get(
+    "/usuario/:usuarioId",
+    eventosController.obtenerEventosPorUsuario
+);
+
+
+// ========================================
 // CREAR UN EVENTO
 // ========================================
 

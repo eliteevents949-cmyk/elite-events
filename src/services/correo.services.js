@@ -28,7 +28,7 @@ async function enviarNotificacion(
 
     const mensaje = {
 
-        from: "TU_CORREO@gmail.com",
+        from: "eliteevents949@gmail.com",
 
         to: correoDestino,
 
@@ -64,6 +64,43 @@ async function enviarNotificacion(
 }
 
 
+async function enviarConfirmacionPago(
+    nombreEvento,
+    precioBoleta,
+    correoUsuario
+) {
+
+    const destinatarios = [
+        "eliteevents949@gmail.com",
+        correoUsuario
+    ].filter(
+        (correo, indice, lista) =>
+            correo && lista.indexOf(correo) === indice
+    );
+
+    const mensaje = {
+
+        from: "eliteevents949@gmail.com",
+
+        to: destinatarios,
+
+        subject: "Confirmación de pago demo - Elite Events",
+
+        html: `
+            <h2>Pago demo confirmado</h2>
+            <p>Se confirmó una reserva para el evento:</p>
+            <h3>${nombreEvento}</h3>
+            <p><strong>Precio de la boleta:</strong> $${Number(precioBoleta || 0).toLocaleString("es-CO")}</p>
+            <p>Este mensaje corresponde a una demostración y no representa un cobro real.</p>
+            <p>Elite Events</p>
+        `
+    };
+
+    await transporter.sendMail(mensaje);
+}
+
+
 module.exports = {
-    enviarNotificacion
+    enviarNotificacion,
+    enviarConfirmacionPago
 };

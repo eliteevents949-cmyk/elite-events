@@ -20,17 +20,22 @@ async function crearReserva(usuarioId, eventoId) {
             SELECT
                 eventos.id,
                 eventos.nombre,
+                eventos.precio,
                 eventos.creado_por,
-                usuarios.correo AS correo_creador
+                eventos.boletas_disponibles,
+                usuarios.correo AS correo_creador,
+                comprador.correo AS correo_comprador
             FROM eventos
             LEFT JOIN usuarios
                 ON eventos.creado_por = usuarios.id
+            LEFT JOIN usuarios AS comprador
+                ON comprador.id = ?
             WHERE eventos.id = ?
         `;
 
         db.query(
             buscarEvento,
-            [eventoId],
+            [usuarioId, eventoId],
             (error, resultados) => {
 
                 if (error) {
@@ -57,10 +62,36 @@ async function crearReserva(usuarioId, eventoId) {
 
                 const evento = resultados[0];
 
+                const descontarBoleta = `
+                    UPDATE eventos
+                    SET boletas_disponibles = boletas_disponibles - 1
+                    WHERE id = ?
+                      AND boletas_disponibles > 0
+                `;
 
-                // ========================================
-                // GUARDAR RESERVA
-                // ========================================
+                db.query(
+                    descontarBoleta,
+                    [eventoId],
+                    (error, descuento) => {
+
+                        if (error) {
+                            reject(error);
+                            return;
+                        }
+
+                        if (descuento.affectedRows === 0) {
+                            reject(
+                                new Error(
+                                    "No hay boletas disponibles para este evento"
+                                )
+                            );
+                            return;
+                        }
+
+
+                        // ========================================
+                        // GUARDAR RESERVA
+                        // ========================================
 
                 const sql = `
                     INSERT INTO reservas
@@ -68,28 +99,49 @@ async function crearReserva(usuarioId, eventoId) {
                     VALUES (?, ?)
                 `;
 
-                db.query(
-                    sql,
-                    [usuarioId, eventoId],
-                    async (error, resultado) => {
+                        db.query(
+                            sql,
+                            [usuarioId, eventoId],
+                            async (error, resultado) => {
 
-                        if (error) {
+                                if (error) {
+
+                                    db.query(
+                                        "UPDATE eventos SET boletas_disponibles = boletas_disponibles + 1 WHERE id = ?",
+                                        [eventoId]
+                                    );
 
                             console.log(
                                 "Error guardando reserva:",
                                 error
                             );
 
-                            reject(error);
-                            return;
+                                    reject(error);
+                                    return;
+                                }
+
+                            try {
+
+                            await correoService.enviarConfirmacionPago(
+                                evento.nombre,
+                                evento.precio,
+                                evento.correo_comprador
+                            );
+
+                            } catch (error) {
+
+                            console.log(
+                                "Error enviando confirmación de pago:",
+                                error
+                            );
                         }
 
 
-                        // ========================================
-                        // CREAR NOTIFICACIÓN
-                        // ========================================
+                            // ========================================
+                            // CREAR NOTIFICACIÓN
+                            // ========================================
 
-                        if (
+                            if (
                             evento.creado_por &&
                             Number(evento.creado_por) !==
                             Number(usuarioId)
@@ -161,12 +213,14 @@ async function crearReserva(usuarioId, eventoId) {
                                 }
                             );
 
-                        } else {
+                                } else {
 
-                            resolve(resultado);
+                                    resolve(resultado);
 
-                        }
+                                }
 
+                            }
+                        );
                     }
                 );
             }
@@ -189,6 +243,7 @@ async function obtenerReservas(usuarioId) {
                 reservas.usuario_id,
                 reservas.evento_id,
                 eventos.nombre AS evento,
+                eventos.imagen,
                 reservas.fecha_reserva
             FROM reservas
             INNER JOIN eventos

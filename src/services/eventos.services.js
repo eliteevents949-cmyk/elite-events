@@ -38,6 +38,44 @@ async function obtenerEventos() {
 
 
 // ========================================
+// OBTENER EVENTOS DE UN USUARIO
+// ========================================
+
+async function obtenerEventosPorUsuario(usuarioId) {
+
+    return new Promise((resolve, reject) => {
+
+        const sql = `
+            SELECT *
+            FROM eventos
+            WHERE creado_por = ?
+            ORDER BY fecha ASC
+        `;
+
+        db.query(
+            sql,
+            [usuarioId],
+            (error, resultados) => {
+
+                if (error) {
+
+                    console.error(
+                        "ERROR OBTENIENDO EVENTOS DEL USUARIO:",
+                        error
+                    );
+
+                    reject(error);
+                    return;
+                }
+
+                resolve(resultados);
+            }
+        );
+    });
+}
+
+
+// ========================================
 // CREAR EVENTO
 // ========================================
 
@@ -54,11 +92,12 @@ async function crearEvento(evento) {
                 hora,
                 lugar,
                 precio,
+                boletas_disponibles,
                 descripcion,
                 imagen,
                 creado_por
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const valores = [
@@ -74,6 +113,8 @@ async function crearEvento(evento) {
             evento.lugar,
 
             evento.precio,
+
+            evento.boletas,
 
             evento.descripcion,
 
@@ -149,6 +190,8 @@ async function eliminarEvento(id) {
 module.exports = {
 
     obtenerEventos,
+
+    obtenerEventosPorUsuario,
 
     crearEvento,
 

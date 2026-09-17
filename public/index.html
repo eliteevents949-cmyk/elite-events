@@ -16,12 +16,19 @@
 
 <body>
 
+    <!-- ============================= -->
+    <!-- ENCABEZADO -->
+    <!-- ============================= -->
+
     <header>
 
+        <!-- LOGO -->
         <div class="logo">
             <img src="./img/logo.png" alt="Elite Events">
         </div>
 
+
+        <!-- MENÚ PRINCIPAL -->
         <nav>
 
             <a href="index.html" class="activo">
@@ -32,6 +39,17 @@
             <a href="eventos.html">
                 <i class="icono">▣</i>
                 Eventos
+            </a>
+
+            <!-- MIS PROYECTOS -->
+            <!-- Se mostrará solamente cuando haya sesión iniciada -->
+            <a
+                href="mis-proyectos.html"
+                id="misProyectos"
+                style="display: none;"
+            >
+                <i class="icono">📁</i>
+                Mis proyectos
             </a>
 
             <a href="reservas.html">
@@ -46,26 +64,62 @@
 
         </nav>
 
+
+        <!-- ============================= -->
+        <!-- CUENTA DEL USUARIO -->
+        <!-- ============================= -->
+
         <div class="cuenta">
 
-            <a href="login.html" class="btn-login">
+            <!-- INICIAR SESIÓN -->
+            <a
+                href="login.html"
+                class="btn-login"
+                id="btnLogin"
+            >
                 <i class="icono">♙</i>
                 Iniciar sesión
             </a>
 
-            <a href="registro.html" class="btn-registro">
+
+            <!-- REGISTRARSE -->
+            <a
+                href="registro.html"
+                class="btn-registro"
+                id="btnRegistro"
+            >
                 <i class="icono">♙</i>
                 Registrarse
             </a>
+
+
+            <!-- CERRAR SESIÓN -->
+            <!-- Se mostrará solamente cuando haya sesión iniciada -->
+            <button
+                type="button"
+                class="btn-cerrar"
+                id="btnCerrarSesion"
+                style="display: none;"
+            >
+                <i class="icono">↪</i>
+                Cerrar sesión
+            </button>
 
         </div>
 
     </header>
 
 
+    <!-- ============================= -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ============================= -->
+
     <main>
 
+        <!-- ============================= -->
         <!-- SECCIÓN PRINCIPAL -->
+        <!-- ============================= -->
+
         <section class="hero">
 
             <div class="hero-text">
@@ -74,24 +128,34 @@
                     BIENVENIDO A ELITE EVENTS
                 </p>
 
+
                 <h1>
                     Encuentra tu próximo
                     <span>gran evento</span>
                 </h1>
+
 
                 <p>
                     Descubre conciertos, festivales, eventos deportivos
                     y mucho más en un solo lugar.
                 </p>
 
+
                 <div class="botones">
 
-                    <a href="eventos.html" class="btn-principal">
+                    <a
+                        href="eventos.html"
+                        class="btn-principal"
+                    >
                         <i class="icono">▣</i>
                         Ver eventos
                     </a>
 
-                    <a href="crear-evento.html" class="btn-secundario">
+
+                    <a
+                        href="crear-evento.html"
+                        class="btn-secundario"
+                    >
                         <i class="icono">＋</i>
                         Crear evento
                     </a>
@@ -101,30 +165,53 @@
             </div>
 
 
+            <!-- ============================= -->
             <!-- LOGO GRANDE -->
+            <!-- ============================= -->
+
             <div class="hero-imagen">
 
-                <img src="./img/logo.png" alt="Elite Events">
+                <img
+                    src="./img/logo.png"
+                    alt="Elite Events"
+                >
 
             </div>
 
         </section>
 
 
+        <!-- ============================= -->
         <!-- CATEGORÍAS -->
+        <!-- ============================= -->
+
         <section class="categorias">
 
-            <h2>¿Qué estás buscando?</h2>
+            <h2>
+                ¿Qué estás buscando?
+            </h2>
+
+            <p class="categorias-intro">
+                Elige una experiencia y descubre tu próximo plan.
+            </p>
+
 
             <div class="categoria-container">
 
-                <a href="eventos.html" class="categoria">
+
+                <!-- CONCIERTOS -->
+
+                <a
+                    href="eventos.html"
+                    class="categoria"
+                >
 
                     <div class="categoria-icono">
-                        
                     </div>
 
-                    <h3>Conciertos</h3>
+                    <h3>
+                        Conciertos
+                    </h3>
 
                     <p>
                         Disfruta de tus artistas favoritos.
@@ -133,13 +220,19 @@
                 </a>
 
 
-                <a href="eventos.html" class="categoria">
+                <!-- FESTIVALES -->
+
+                <a
+                    href="eventos.html"
+                    class="categoria"
+                >
 
                     <div class="categoria-icono">
-                        
                     </div>
 
-                    <h3>Festivales</h3>
+                    <h3>
+                        Festivales
+                    </h3>
 
                     <p>
                         Vive experiencias únicas.
@@ -148,13 +241,19 @@
                 </a>
 
 
-                <a href="eventos.html" class="categoria">
+                <!-- DEPORTES -->
+
+                <a
+                    href="eventos.html"
+                    class="categoria"
+                >
 
                     <div class="categoria-icono">
-                        
                     </div>
 
-                    <h3>Deportes</h3>
+                    <h3>
+                        Deportes
+                    </h3>
 
                     <p>
                         Vive la emoción del deporte.
@@ -169,10 +268,15 @@
     </main>
 
 
+    <!-- ============================= -->
     <!-- PIE DE PÁGINA -->
+    <!-- ============================= -->
+
     <footer>
 
-        <h3>Elite Events</h3>
+        <h3>
+            Elite Events
+        </h3>
 
         <p>
             Descubre. Organiza. Disfruta.
@@ -183,6 +287,11 @@
         </p>
 
     </footer>
+
+
+    <!-- ============================= -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================= -->
 
     <script src="./script.js"></script>
 

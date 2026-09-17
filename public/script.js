@@ -197,7 +197,127 @@ if (formularioLogin) {
 // RESERVAR EVENTO
 // ========================================
 
-async function reservar(eventoId) {
+function reservar(eventoId) {
+
+    const usuarioGuardado =
+        localStorage.getItem("usuario");
+
+    const usuario =
+        usuarioGuardado
+            ? JSON.parse(usuarioGuardado)
+            : null;
+
+    if (!usuario || !usuario.id) {
+        procesarReserva(eventoId);
+        return;
+    }
+
+    mostrarModalPago(eventoId);
+}
+
+
+function mostrarModalPago(eventoId) {
+
+    const modalAnterior =
+        document.getElementById("modalPago");
+
+    if (modalAnterior) {
+        modalAnterior.remove();
+    }
+
+    const modal =
+        document.createElement("div");
+
+    modal.id = "modalPago";
+    modal.className = "modal-pago";
+
+    modal.innerHTML = `
+        <div class="modal-pago-contenido" role="dialog" aria-modal="true" aria-labelledby="tituloPago">
+            <button type="button" class="modal-pago-cerrar" aria-label="Cerrar">&times;</button>
+            <p class="bienvenida">RESERVA DE EVENTO</p>
+            <h2 id="tituloPago">Método de pago</h2>
+            <p class="modal-pago-nota">Demo de pago. No se realizará ningún cobro.</p>
+            <form id="formPagoDemo">
+                <label for="metodoPago">Selecciona el método</label>
+                <select id="metodoPago" required>
+                    <option value="">Seleccionar</option>
+                    <option value="nequi">Nequi</option>
+                    <option value="bancolombia">Bancolombia</option>
+                </select>
+                <label id="numeroPagoEtiqueta" for="numeroPago">Número de celular Nequi</label>
+                <input id="numeroPago" type="text" inputmode="numeric" placeholder="3001234567" minlength="10" maxlength="10" pattern="[0-9]{10}" required>
+                <label for="nombreTitular">Nombre del titular</label>
+                <input id="nombreTitular" type="text" placeholder="Nombre completo" required>
+                <button type="submit" class="btn-principal">Confirmar pago demo</button>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const metodoPago =
+        modal.querySelector("#metodoPago");
+
+    const numeroPagoEtiqueta =
+        modal.querySelector("#numeroPagoEtiqueta");
+
+    const numeroPago =
+        modal.querySelector("#numeroPago");
+
+    metodoPago.addEventListener("change", function () {
+
+        const esNequi =
+            metodoPago.value === "nequi";
+
+        numeroPagoEtiqueta.textContent =
+            esNequi
+                ? "Número de celular Nequi"
+                : "Número de cuenta Bancolombia";
+
+        numeroPago.placeholder =
+            esNequi
+                ? "3001234567"
+                : "12345678901";
+
+        numeroPago.minLength =
+            esNequi ? 10 : 11;
+
+        numeroPago.maxLength =
+            esNequi ? 10 : 11;
+
+        numeroPago.pattern =
+            esNequi ? "[0-9]{10}" : "[0-9]{11}";
+
+        numeroPago.value = "";
+    });
+
+    const cerrar = function () {
+        modal.remove();
+    };
+
+    modal.querySelector(".modal-pago-cerrar").addEventListener(
+        "click",
+        cerrar
+    );
+
+    modal.addEventListener("click", function (event) {
+        if (event.target === modal) {
+            cerrar();
+        }
+    });
+
+    modal.querySelector("#formPagoDemo").addEventListener(
+        "submit",
+        function (event) {
+            event.preventDefault();
+            cerrar();
+            procesarReserva(eventoId);
+        }
+    );
+}
+
+
+async function procesarReserva(eventoId) {
 
     const usuarioGuardado =
         localStorage.getItem("usuario");
@@ -436,12 +556,37 @@ async function mostrarReservas() {
             tarjeta.className =
                 "tarjeta-evento";
 
+            let imagenReserva = "";
+
+            if (reserva.imagen) {
+
+                let rutaImagen = reserva.imagen;
+
+                if (!rutaImagen.startsWith("/")) {
+                    rutaImagen = "/" + rutaImagen;
+                }
+
+                if (!rutaImagen.startsWith("/uploads/")) {
+                    rutaImagen =
+                        "/uploads/" +
+                        rutaImagen.replace(/^\/+/, "");
+                }
+
+                imagenReserva = `
+                    <img
+                        class="imagen-reserva"
+                        src="${rutaImagen}"
+                        alt="${reserva.evento || "Evento"}"
+                        onerror="this.style.display='none';"
+                    >
+                `;
+            }
+
             tarjeta.innerHTML = `
 
-                <div class="icono-evento">
-                </div>
+                ${imagenReserva}
 
-                <div>
+                <div class="contenido-reserva">
 
                     <h2>
                         ${reserva.evento || "Evento"}
@@ -555,8 +700,9 @@ function mostrarUsuario() {
 }
 
 
+
 // ========================================
-// ICONOS DE NAVEGACIÓN
+// ICONOS Y MENÚ DE NAVEGACIÓN
 // ========================================
 
 function unificarIconosNavegacion() {
@@ -565,72 +711,215 @@ function unificarIconosNavegacion() {
         window.location.pathname.split("/").pop() ||
         "index.html";
 
-    const navegacion = `
-        <a href="index.html" class="${paginaActual === "index.html" ? "activo" : ""}">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 9.75-9 9.75 9M4.5 10.5v9.75h15V10.5" /></svg>
+    const usuarioGuardado =
+        localStorage.getItem("usuario");
+
+    const usuario =
+        usuarioGuardado
+            ? JSON.parse(usuarioGuardado)
+            : null;
+
+    let navegacion = `
+        <a href="index.html"
+           class="${paginaActual === "index.html" ? "activo" : ""}">
+           
+            <svg width="18" height="18"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m2.25 12 9.75-9 9.75 9M4.5 10.5v9.75h15V10.5"
+                />
+
+            </svg>
+
             Inicio
         </a>
-        <a href="eventos.html" class="${paginaActual === "eventos.html" ? "activo" : ""}">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 9.75h18M5.25 5.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25A2.25 2.25 0 0 1 18.75 21H5.25A2.25 2.25 0 0 1 3 18.75V7.5A2.25 2.25 0 0 1 5.25 5.25Z" /></svg>
+
+
+        <a href="eventos.html"
+           class="${paginaActual === "eventos.html" ? "activo" : ""}">
+
+            <svg width="18" height="18"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6.75 3v2.25M17.25 3v2.25M3 9.75h18M5.25 5.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25A2.25 2.25 0 0 1 18.75 21H5.25A2.25 2.25 0 0 1 3 18.75V7.5A2.25 2.25 0 0 1 5.25 5.25Z"
+                />
+
+            </svg>
+
             Eventos
         </a>
-        <a href="reservas.html" class="${paginaActual === "reservas.html" ? "activo" : ""}">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6.75h.75A2.25 2.25 0 0 1 19.5 9v6a2.25 2.25 0 0 1-2.25 2.25h-.75M7.5 6.75h-.75A2.25 2.25 0 0 0 4.5 9v6a2.25 2.25 0 0 0 2.25 2.25h.75m0-10.5h9m-9 10.5h9M9 6.75v10.5m6-10.5v10.5" /></svg>
+    `;
+
+
+    // ========================================
+    // MIS PROYECTOS
+    // SOLO APARECE SI HAY SESIÓN
+    // ========================================
+
+    if (usuario) {
+
+        navegacion += `
+            <a href="mis-proyectos.html"
+               class="${paginaActual === "mis-proyectos.html" ? "activo" : ""}">
+
+                <svg width="18" height="18"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     viewBox="0 0 24 24"
+                     aria-hidden="true">
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M3 7.5A2.25 2.25 0 0 1 5.25 5.25h4.5L12 7.5h6.75A2.25 2.25 0 0 1 21 9.75v8.25a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18V7.5Z"
+                    />
+
+                </svg>
+
+                Mis proyectos
+            </a>
+        `;
+    }
+
+
+    // ========================================
+    // MIS RESERVAS
+    // ========================================
+
+    navegacion += `
+        <a href="reservas.html"
+           class="${paginaActual === "reservas.html" ? "activo" : ""}">
+
+            <svg width="18" height="18"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M16.5 6.75h.75A2.25 2.25 0 0 1 19.5 9v6a2.25 2.25 0 0 1-2.25 2.25h-.75M7.5 6.75h-.75A2.25 2.25 0 0 0 4.5 9v6a2.25 2.25 0 0 0 2.25 2.25h.75m0-10.5h9m-9 10.5h9M9 6.75v10.5m6-10.5v10.5"
+                />
+
+            </svg>
+
             Mis reservas
         </a>
-        <a href="crear-evento.html" class="${paginaActual === "crear-evento.html" ? "activo" : ""}">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+
+
+        <a href="crear-evento.html"
+           class="${paginaActual === "crear-evento.html" ? "activo" : ""}">
+
+            <svg width="18" height="18"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                />
+
+            </svg>
+
             Crear evento
         </a>
     `;
 
-    document.querySelectorAll("nav").forEach(function (menu) {
-        menu.innerHTML = navegacion;
-    });
 
+    // ========================================
+    // COLOCAR MENÚ
+    // ========================================
 
-    const iconoCuenta = {
+    document.querySelectorAll("nav").forEach(
+        function (menu) {
 
-        "btn-login":
-            '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0" /></svg>',
+            menu.innerHTML = navegacion;
 
-        "btn-registro":
-            '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0M19 8v6m3-3h-6" /></svg>'
-    };
-
-
-    document.querySelectorAll(
-        ".cuenta a.btn-login, .cuenta a.btn-registro"
-    ).forEach(
-        function (enlace) {
-
-            const tipo =
-                enlace.classList.contains("btn-login")
-                    ? "btn-login"
-                    : "btn-registro";
-
-            const icono =
-                iconoCuenta[tipo];
-
-            const iconoActual =
-                enlace.querySelector(
-                    "svg, .icono"
-                );
-
-            if (iconoActual) {
-
-                iconoActual.outerHTML =
-                    icono;
-
-            } else {
-
-                enlace.insertAdjacentHTML(
-                    "afterbegin",
-                    icono
-                );
-            }
         }
     );
+
+
+    // ========================================
+    // BOTONES DE CUENTA
+    // ========================================
+
+    const btnLogin =
+        document.getElementById("btnLogin");
+
+    const btnRegistro =
+        document.getElementById("btnRegistro");
+
+    const btnCerrarSesion =
+        document.getElementById("btnCerrarSesion");
+
+
+    if (usuario) {
+
+        // Ocultar iniciar sesión
+        if (btnLogin) {
+            btnLogin.style.display = "none";
+        }
+
+        // Ocultar registrarse
+        if (btnRegistro) {
+            btnRegistro.style.display = "none";
+        }
+
+        // Mostrar cerrar sesión
+        if (btnCerrarSesion) {
+
+            btnCerrarSesion.style.display =
+                "inline-block";
+
+            btnCerrarSesion.onclick =
+                function () {
+
+                    cerrarSesion();
+
+                };
+        }
+
+    } else {
+
+        // Mostrar iniciar sesión
+        if (btnLogin) {
+            btnLogin.style.display =
+                "inline-block";
+        }
+
+        // Mostrar registrarse
+        if (btnRegistro) {
+            btnRegistro.style.display =
+                "inline-block";
+        }
+
+        // Ocultar cerrar sesión
+        if (btnCerrarSesion) {
+            btnCerrarSesion.style.display =
+                "none";
+        }
+    }
 }
 
 
@@ -720,6 +1009,11 @@ if (formularioEvento) {
                     "precioEvento"
                 ).value;
 
+            const boletas =
+                document.getElementById(
+                    "boletasEvento"
+                ).value;
+
             const inputImagen =
                 document.getElementById(
                     "imagenEvento"
@@ -770,6 +1064,11 @@ if (formularioEvento) {
             formularioDatos.append(
                 "precio",
                 precio
+            );
+
+            formularioDatos.append(
+                "boletas",
+                boletas
             );
 
             formularioDatos.append(
@@ -1067,6 +1366,17 @@ async function cargarEventos() {
 
                         <p>
 
+                            <strong>
+                                Boletas disponibles:
+                            </strong>
+
+                            ${evento.boletas_disponibles || 0}
+
+                        </p>
+
+
+                        <p>
+
                             ${evento.descripcion || "Sin descripción"}
 
                         </p>
@@ -1075,9 +1385,10 @@ async function cargarEventos() {
                         <button
                             class="btn-principal"
                             onclick="reservar(${evento.id})"
+                            ${Number(evento.boletas_disponibles) > 0 ? "" : "disabled"}
                         >
 
-                            Reservar
+                            ${Number(evento.boletas_disponibles) > 0 ? "Reservar" : "Agotado"}
 
                         </button>
 
@@ -1220,6 +1531,112 @@ function mostrarNotificacion(
 
 
 // ========================================
+// MOSTRAR MIS PROYECTOS
+// ========================================
+
+async function cargarMisProyectos() {
+
+    const contenedor =
+        document.getElementById("listaMisProyectos");
+
+    if (!contenedor) {
+        return;
+    }
+
+    const usuarioGuardado =
+        localStorage.getItem("usuario");
+
+    const usuario =
+        usuarioGuardado
+            ? JSON.parse(usuarioGuardado)
+            : null;
+
+    if (!usuario || !usuario.id) {
+
+        contenedor.innerHTML = `
+            <div class="reserva-vacia">
+                <h2>Inicia sesión</h2>
+                <p>Debes iniciar sesión para ver tus eventos.</p>
+                <a href="login.html" class="btn-principal">
+                    Iniciar sesión
+                </a>
+            </div>
+        `;
+
+        return;
+    }
+
+    try {
+
+        const respuesta =
+            await fetch(
+                "/api/eventos/usuario/" +
+                usuario.id
+            );
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudieron cargar tus eventos");
+        }
+
+        const eventos =
+            await respuesta.json();
+
+        if (!Array.isArray(eventos) || eventos.length === 0) {
+
+            contenedor.innerHTML = `
+                <div class="reserva-vacia">
+                    <h2>No tienes eventos creados</h2>
+                    <p>Los eventos que crees aparecerán aquí.</p>
+                    <a href="crear-evento.html" class="btn-principal">
+                        Crear evento
+                    </a>
+                </div>
+            `;
+
+            return;
+        }
+
+        contenedor.innerHTML = "";
+
+        eventos.forEach(function (evento) {
+
+            const tarjeta =
+                document.createElement("div");
+
+            tarjeta.className = "tarjeta-evento";
+
+            tarjeta.innerHTML = `
+                ${evento.imagen ? `
+                    <div class="imagen-evento">
+                        <img src="${evento.imagen}" alt="${evento.nombre || "Evento"}">
+                    </div>
+                ` : ""}
+
+                <div class="contenido-evento">
+                    <h2>${evento.nombre || "Evento sin nombre"}</h2>
+                    <p><strong>Categoría:</strong> ${evento.categoria || "Sin categoría"}</p>
+                    <p><strong>Fecha:</strong> ${evento.fecha || "Sin fecha"}</p>
+                    <p><strong>Hora:</strong> ${evento.hora || "Sin hora"}</p>
+                    <p><strong>Lugar:</strong> ${evento.lugar || "Sin lugar"}</p>
+                    <p><strong>Precio:</strong> $${evento.precio || 0}</p>
+                </div>
+            `;
+
+            contenedor.appendChild(tarjeta);
+        });
+
+    } catch (error) {
+
+        console.error("Error al cargar mis proyectos:", error);
+
+        contenedor.innerHTML = `
+            <p>Error al cargar tus eventos.</p>
+        `;
+    }
+}
+
+
+// ========================================
 // EJECUTAR AL CARGAR LA PÁGINA
 // ========================================
 
@@ -1232,6 +1649,14 @@ document.addEventListener(
         mostrarReservas();
 
         mostrarUsuario();
+
+    }
+);
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        cargarMisProyectos();
 
     }
 );
