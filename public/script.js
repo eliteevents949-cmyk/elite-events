@@ -844,6 +844,22 @@ function unificarIconosNavegacion() {
 
             Crear evento
         </a>
+
+        <a href="soporte.html"
+           class="${paginaActual === "soporte.html" ? "activo" : ""}">
+
+            <svg width="18" height="18"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 viewBox="0 0 24 24"
+                 aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M8.25 10.5h7.5m-7.5 3h4.5M6.75 19.5 3 21l1.5-4.5A8.25 8.25 0 1 1 6.75 19.5Z" />
+            </svg>
+
+            Ayuda
+        </a>
     `;
 
 
@@ -1296,6 +1312,25 @@ async function cargarEventos() {
                     `;
                 }
 
+                const fechaEvento =
+                    evento.fecha
+                        ? String(evento.fecha).slice(0, 10)
+                        : "";
+
+                const ahora =
+                    new Date();
+
+                const fechaHoy =
+                    ahora.getFullYear() +
+                    "-" +
+                    String(ahora.getMonth() + 1).padStart(2, "0") +
+                    "-" +
+                    String(ahora.getDate()).padStart(2, "0");
+
+                const eventoDisponible =
+                    fechaEvento > fechaHoy &&
+                    Number(evento.boletas_disponibles) > 0;
+
 
                 tarjeta.innerHTML = `
 
@@ -1353,26 +1388,21 @@ async function cargarEventos() {
                         </p>
 
 
-                        <p>
+                        ${eventoDisponible ? `
+                            <p>
+                                <strong>Precio:</strong>
+                                $${evento.precio || 0}
+                            </p>
 
-                            <strong>
-                                Precio:
-                            </strong>
-
-                            $${evento.precio || 0}
-
-                        </p>
-
-
-                        <p>
-
-                            <strong>
-                                Boletas disponibles:
-                            </strong>
-
-                            ${evento.boletas_disponibles || 0}
-
-                        </p>
+                            <p>
+                                <strong>Boletas disponibles:</strong>
+                                ${evento.boletas_disponibles}
+                            </p>
+                        ` : `
+                            <p class="evento-no-disponible">
+                                Evento no disponible
+                            </p>
+                        `}
 
 
                         <p>
@@ -1385,10 +1415,10 @@ async function cargarEventos() {
                         <button
                             class="btn-principal"
                             onclick="reservar(${evento.id})"
-                            ${Number(evento.boletas_disponibles) > 0 ? "" : "disabled"}
+                            ${eventoDisponible ? "" : "disabled"}
                         >
 
-                            ${Number(evento.boletas_disponibles) > 0 ? "Reservar" : "Agotado"}
+                            ${eventoDisponible ? "Reservar" : "No disponible"}
 
                         </button>
 
@@ -1636,6 +1666,161 @@ async function cargarMisProyectos() {
 }
 
 
+async function cargarSoporte() {
+
+    const lista = document.getElementById("listaMensajesSoporte");
+    const formulario = document.getElementById("formSoporte");
+
+    if (!lista || !formulario) {
+        return;
+    }
+
+    const usuarioGuardado = localStorage.getItem("usuario");
+    const usuario = usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
+
+    if (!usuario || !usuario.id) {
+        lista.innerHTML = '<p class="centrado">Debes iniciar sesión para contactar al soporte.</p>';
+        formulario.style.display = "none";
+        return;
+    }
+
+    async function cargarMensajes() {
+
+        const respuesta = await fetch("/api/soporte/" + usuario.id);
+        const mensajes = await respuesta.json();
+
+        lista.innerHTML = mensajes.length
+            ? mensajes.map(function (item) {
+                return `
+                    <article class="mensaje-soporte ${item.autor_rol === "usuario" ? "mensaje-usuario" : "mensaje-admin"}">
+                        <strong>${item.autor_rol === "usuario" ? "Tú" : "IA de soporte Elite Events"}</strong>
+                        <p>${formatearMensajeSoporte(item.mensaje)}</p>
+                        <small>${new Date(item.fecha).toLocaleString("es-CO")}</small>
+                    </article>
+                `;
+            }).join("")
+            : '<p class="centrado">Todavía no tienes mensajes de soporte.</p>';
+    }
+
+    formulario.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        const campo = document.getElementById("mensajeSoporte");
+        const estado = document.getElementById("mensajeSoporteEstado");
+        const respuesta = await fetch("/api/soporte/" + usuario.id, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mensaje: campo.value })
+        });
+
+        const datos = await respuesta.json();
+        estado.textContent = datos.mensaje;
+
+        if (respuesta.ok) {
+            campo.value = "";
+            await cargarMensajes();
+        }
+    });
+
+    await cargarMensajes();
+}
+
+
+async function cargarSoporteAdmin() {
+
+    const lista = document.getElementById("listaMensajesAdmin");
+
+    if (!lista) {
+        return;
+    }
+
+    const usuarioGuardado = localStorage.getItem("usuario");
+    const usuario = usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
+
+    if (!usuario || usuario.rol !== "admin") {
+        lista.innerHTML = '<p class="centrado">No tienes permisos para ver esta bandeja.</p>';
+        return;
+    }
+
+    const respuesta = await fetch("/api/soporte/admin?adminId=" + usuario.id);
+    const mensajes = await respuesta.json();
+    const usuarios = {};
+
+    mensajes.forEach(function (item) {
+        if (!usuarios[item.usuario_id]) {
+            usuarios[item.usuario_id] = {
+                nombre: `${item.nombre} ${item.apellido}`,
+                correo: item.correo,
+                mensajes: []
+            };
+        }
+        usuarios[item.usuario_id].mensajes.push(item);
+    });
+
+    lista.innerHTML = Object.entries(usuarios).length
+        ? Object.entries(usuarios).map(function (entrada) {
+            const usuarioId = entrada[0];
+            const caso = entrada[1];
+            return `
+                <article class="caso-soporte">
+                    <h2>${caso.nombre}</h2>
+                    <small>${caso.correo}</small>
+                    <div class="historial-soporte">
+                        ${caso.mensajes.map(item => `<p><strong>${escaparTexto(item.autor_rol)}:</strong> ${formatearMensajeSoporte(item.mensaje)}</p>`).join("")}
+                    </div>
+                    <form class="form-respuesta" data-usuario-id="${usuarioId}">
+                        <textarea maxlength="1000" placeholder="Escribe una respuesta..." required></textarea>
+                        <button type="submit" class="btn-principal">Responder</button>
+                    </form>
+                </article>
+            `;
+        }).join("")
+        : '<p class="centrado">No hay mensajes pendientes.</p>';
+
+    lista.querySelectorAll(".form-respuesta").forEach(function (formulario) {
+        formulario.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const campo = formulario.querySelector("textarea");
+            await fetch("/api/soporte/admin/responder", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    adminId: usuario.id,
+                    usuarioId: formulario.dataset.usuarioId,
+                    mensaje: campo.value
+                })
+            });
+            await cargarSoporteAdmin();
+        });
+    });
+}
+
+
+function escaparTexto(valor) {
+
+    return String(valor)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function formatearMensajeSoporte(valor) {
+
+    const mensaje = escaparTexto(valor);
+
+    return mensaje.replace(
+        /https:\/\/wa\.me\/\d+/g,
+        function (enlace) {
+            return `<a href="${enlace}" target="_blank" rel="noopener noreferrer" class="enlace-whatsapp">Hablar con el asesor por WhatsApp</a>`;
+        }
+    );
+}
+
+
 // ========================================
 // EJECUTAR AL CARGAR LA PÁGINA
 // ========================================
@@ -1649,6 +1834,10 @@ document.addEventListener(
         mostrarReservas();
 
         mostrarUsuario();
+
+        cargarSoporte();
+
+        cargarSoporteAdmin();
 
     }
 );

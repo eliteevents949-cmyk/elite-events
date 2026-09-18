@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Events - Ayuda</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <header>
+        <div class="logo"><img src="./img/logo.png" alt="Elite Events"></div>
+        <nav></nav>
+        <div class="cuenta">
+            <a href="login.html" class="btn-login" id="btnLogin">Iniciar sesión</a>
+            <a href="registro.html" class="btn-registro" id="btnRegistro">Registrarse</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="titulo-pagina">
+            <p class="bienvenida">CENTRO DE AYUDA</p>
+            <h1>¿En qué podemos ayudarte?</h1>
+            <p>Escribe tu problema y el equipo de Elite Events te responderá aquí.</p>
+        </section>
+
+        <section class="soporte-panel">
+            <form id="formSoporte">
+                <label for="mensajeSoporte">Nuevo mensaje</label>
+                <textarea id="mensajeSoporte" maxlength="1000" placeholder="Cuéntanos qué ocurrió..." required></textarea>
+                <button type="submit" class="btn-principal">Enviar mensaje</button>
+            </form>
+            <a href="https://wa.me/573214519458" target="_blank" rel="noopener noreferrer" class="boton-whatsapp">
+                Hablar directamente por WhatsApp
+            </a>
+            <p id="mensajeSoporteEstado" class="centrado"></p>
+            <div id="listaMensajesSoporte" class="lista-mensajes"></div>
+        </section>
+    </main>
+
+    <script src="./script.js"></script>
+</body>
+</html>

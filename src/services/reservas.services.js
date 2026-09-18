@@ -67,6 +67,7 @@ async function crearReserva(usuarioId, eventoId) {
                     SET boletas_disponibles = boletas_disponibles - 1
                     WHERE id = ?
                       AND boletas_disponibles > 0
+                                            AND fecha > CURDATE()
                 `;
 
                 db.query(
@@ -82,7 +83,7 @@ async function crearReserva(usuarioId, eventoId) {
                         if (descuento.affectedRows === 0) {
                             reject(
                                 new Error(
-                                    "No hay boletas disponibles para este evento"
+                                    "El evento ya no está disponible"
                                 )
                             );
                             return;

@@ -54,6 +54,14 @@ app.use(
     notificacionesRoutes
 );
 
+const soporteRoutes =
+    require("./src/routers/soporte.routes");
+
+app.use(
+    "/api/soporte",
+    soporteRoutes
+);
+
 
 // ========================================
 // RUTAS DE RESERVAS
