@@ -2,6 +2,24 @@
 // ELITE EVENTS - SCRIPT.JS
 // ========================================
 
+const temaGuardado =
+    localStorage.getItem("tema") || "claro";
+
+document.documentElement.dataset.tema = temaGuardado;
+
+function actualizarBotonTema(boton, tema) {
+    const temaOscuro = tema === "oscuro";
+
+    boton.setAttribute("aria-pressed", String(temaOscuro));
+    boton.setAttribute(
+        "aria-label",
+        temaOscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro"
+    );
+    boton.innerHTML = temaOscuro
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg><span>Modo claro</span>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><span>Modo oscuro</span>';
+}
+
 
 // ========================================
 // REGISTRO DE USUARIO
@@ -872,6 +890,25 @@ function unificarIconosNavegacion() {
 
             menu.innerHTML = navegacion;
 
+            if (paginaActual === "index.html") {
+                const botonTema = document.createElement("button");
+                botonTema.type = "button";
+                botonTema.className = "boton-tema";
+                botonTema.addEventListener("click", function () {
+                    const nuevoTema =
+                        document.documentElement.dataset.tema === "oscuro"
+                            ? "claro"
+                            : "oscuro";
+
+                    document.documentElement.dataset.tema = nuevoTema;
+                    localStorage.setItem("tema", nuevoTema);
+                    actualizarBotonTema(botonTema, nuevoTema);
+                });
+
+                actualizarBotonTema(botonTema, temaGuardado);
+                menu.appendChild(botonTema);
+            }
+
         }
     );
 
@@ -1261,13 +1298,30 @@ async function cargarEventos() {
                 // IMAGEN DEL EVENTO
                 // ========================================
 
-                let imagenHTML = "";
+                const categoriaImagen =
+                    (evento.categoria || "")
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .toLowerCase();
 
+                const imagenesPorCategoria = {
+                    musica: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1000&q=85",
+                    tecnologia: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1000&q=85",
+                    arte: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1000&q=85",
+                    deportes: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1000&q=85",
+                    cultura: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=85",
+                    gastronomia: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1000&q=85",
+                    emprendimiento: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1000&q=85"
+                };
 
-                if (evento.imagen) {
+                const imagenEvento =
+                    evento.imagen ||
+                    imagenesPorCategoria[categoriaImagen] ||
+                    imagenesPorCategoria.cultura;
 
-                    let rutaImagen =
-                        evento.imagen;
+                let rutaImagen = imagenEvento;
+
+                if (!/^https?:\/\//i.test(rutaImagen)) {
 
 
                     // Si la BD ya guarda /uploads/
@@ -1297,25 +1351,33 @@ async function cargarEventos() {
                     }
 
 
-                    imagenHTML = `
-
-                        <div class="imagen-evento">
-
-                            <img
-                                src="${rutaImagen}"
-                                alt="${evento.nombre || "Evento"}"
-                                onerror="this.parentElement.style.display='none';"
-                            >
-
-                        </div>
-
-                    `;
                 }
+
+                const imagenHTML = `
+                    <div class="imagen-evento">
+                        <img
+                            src="${rutaImagen}"
+                            alt="${evento.nombre || "Evento"}"
+                            onerror="this.parentElement.style.display='none';"
+                        >
+                    </div>
+                `;
 
                 const fechaEvento =
                     evento.fecha
                         ? String(evento.fecha).slice(0, 10)
                         : "";
+
+                const fechaLegible = fechaEvento
+                    ? `${fechaEvento.slice(8, 10)}/${fechaEvento.slice(5, 7)}/${fechaEvento.slice(0, 4)}`
+                    : "Sin fecha";
+
+                const precioNumerico = Number(evento.precio || 0);
+                const precioLegible = Number.isFinite(precioNumerico)
+                    ? precioNumerico.toLocaleString("es-CO", {
+                        maximumFractionDigits: 0
+                    })
+                    : "0";
 
                 const ahora =
                     new Date();
@@ -1361,7 +1423,7 @@ async function cargarEventos() {
                                 Fecha:
                             </strong>
 
-                            ${evento.fecha || "Sin fecha"}
+                            ${fechaLegible}
 
                         </p>
 
@@ -1391,7 +1453,7 @@ async function cargarEventos() {
                         ${eventoDisponible ? `
                             <p>
                                 <strong>Precio:</strong>
-                                $${evento.precio || 0}
+                                $${precioLegible}
                             </p>
 
                             <p>

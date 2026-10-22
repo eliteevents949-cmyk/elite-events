@@ -21,10 +21,8 @@ async function obtenerEventos() {
 
                 if (error) {
 
-                    console.error(
-                        "ERROR OBTENIENDO EVENTOS:",
-                        error
-                    );
+                  console.error("ERROR SQL:", error.code);
+                  console.error("MENSAJE SQL:", error.message);
 
                     reject(error);
                     return;

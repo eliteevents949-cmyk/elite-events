@@ -14,6 +14,21 @@
     --gris-texto: #675f78;
     --fondo: #f7f5fb;
     --linea: #e4dfee;
+    --superficie: #ffffff;
+    --campo: #ffffff;
+}
+
+:root[data-tema="oscuro"] {
+    color-scheme: dark;
+    --morado: #c4a8ff;
+    --morado-oscuro: #d5c2ff;
+    --azul: #83b9ff;
+    --tinta: #f1edf7;
+    --gris-texto: #b9b0c7;
+    --fondo: #17141d;
+    --linea: #393341;
+    --superficie: #211d29;
+    --campo: #191620;
 }
 
 body {
@@ -743,7 +758,7 @@ textarea {
 ========================= */
 
 footer {
-    background: var(--tinta);
+    background: #211a2e;
     color: white;
 
     text-align: center;
@@ -954,6 +969,33 @@ select:focus {
         grid-template-columns: 1fr;
     }
 }
+
+@media (max-width: 800px) {
+    header {
+        gap: 10px;
+        padding: 12px 16px;
+    }
+
+    header .logo {
+        width: 145px;
+        height: 48px;
+    }
+
+    header .logo img {
+        width: 125px;
+        height: 48px;
+    }
+
+    header nav {
+        gap: 6px 14px;
+    }
+
+    header nav a {
+        padding: 5px 0;
+        font-size: 13px;
+    }
+
+}
 /* ===== CORRECCIÓN DEL LOGO ===== */
 
 /* Logo pequeño del encabezado */
@@ -1160,4 +1202,133 @@ nav a:hover svg,
 .cuenta a:hover svg,
 .cuenta button:hover svg {
     transform: translateY(-1px);
+}
+
+body,
+.hero,
+.categoria,
+.soporte-panel,
+.formulario,
+.tarjeta-evento,
+.modal-pago-contenido,
+.notificacion {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.boton-tema {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 38px;
+    padding: 7px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+    background: transparent;
+    color: white;
+    font: inherit;
+    font-size: 13px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.boton-tema:hover,
+.boton-tema:focus-visible {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.boton-tema svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+:root[data-tema="oscuro"] body {
+    background: var(--fondo);
+}
+
+:root[data-tema="oscuro"] header {
+    background: #302044;
+    border-bottom-color: #4d85c2;
+}
+
+:root[data-tema="oscuro"] .hero,
+:root[data-tema="oscuro"] .categoria,
+:root[data-tema="oscuro"] .soporte-panel,
+:root[data-tema="oscuro"] .formulario,
+:root[data-tema="oscuro"] .tarjeta-evento,
+:root[data-tema="oscuro"] .modal-pago-contenido,
+:root[data-tema="oscuro"] .notificacion {
+    background: var(--superficie);
+    color: var(--tinta);
+}
+
+:root[data-tema="oscuro"] input,
+:root[data-tema="oscuro"] textarea,
+:root[data-tema="oscuro"] select {
+    border-color: var(--linea);
+    background: var(--campo);
+    color: var(--tinta);
+}
+
+:root[data-tema="oscuro"] input::placeholder,
+:root[data-tema="oscuro"] textarea::placeholder {
+    color: #91879f;
+}
+
+:root[data-tema="oscuro"] .bienvenida,
+:root[data-tema="oscuro"] .categoria-icono {
+    background: #352944;
+}
+
+:root[data-tema="oscuro"] .mensaje-admin {
+    background: #202a38;
+}
+
+:root[data-tema="oscuro"] .btn-principal:hover {
+    background: #7659a8;
+    border-color: #7659a8;
+}
+
+:root[data-tema="oscuro"] .evento-no-disponible {
+    color: #ff9f9f !important;
+}
+
+@media (max-width: 800px) {
+    .boton-tema {
+        margin: 2px auto;
+    }
+
+    .hero {
+        flex-direction: column;
+        min-height: 0;
+        margin: 22px 12px;
+        padding: 34px 22px 24px;
+        gap: 8px;
+    }
+
+    .hero-text,
+    .hero-imagen {
+        width: 100%;
+    }
+
+    .hero-text {
+        order: 1;
+    }
+
+    .hero-imagen {
+        order: 2;
+        width: 100% !important;
+        min-height: 0;
+        margin-top: 8px;
+    }
+
+    .hero-imagen img {
+        width: min(180px, 65vw) !important;
+        height: auto !important;
+    }
 }
