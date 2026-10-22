@@ -2,85 +2,166 @@ require("dotenv").config();
 
 const mysql = require("mysql2");
 
+
+// ========================================
+// VERIFICAR VARIABLES DE ENTORNO
+// ========================================
+
+console.log("========== CONFIGURACIÓN MYSQL ==========");
+console.log("DB_HOST:", process.env.DB_HOST);
+console.log("DB_NAME:", process.env.DB_NAME);
+console.log("DB_PORT:", process.env.DB_PORT);
+console.log("DB_USER:", process.env.DB_USER);
+console.log("DB_PASSWORD definida:", !!process.env.DB_PASSWORD);
+console.log("=========================================");
+
+
+// ========================================
+// CONEXIÓN A MYSQL
+// ========================================
+
 const connection = mysql.createConnection({
-    host: process.env.DB_HOST || "localhost",
 
-    port: process.env.DB_PORT || 3306,
+    host: process.env.DB_HOST,
 
-    user: process.env.DB_USER || "root",
+    port: Number(process.env.DB_PORT),
 
-    password: process.env.DB_PASSWORD || "",
+    user: process.env.DB_USER,
 
-    database: process.env.DB_NAME || "elite_events"
+    password: process.env.DB_PASSWORD,
+
+    database: process.env.DB_NAME,
+
+    ssl: {
+        rejectUnauthorized: false
+    }
+
 });
+
+
+// ========================================
+// CONECTAR
+// ========================================
 
 connection.connect((error) => {
 
     if (error) {
 
-        console.log(
-            "❌ Error al conectar con MySQL:"
-        );
-
+        console.log("❌ Error al conectar con MySQL:");
         console.log(error.message);
 
         return;
     }
 
-    console.log("✅ Conectado a MySQL");
+    console.log("✅ Conectado a MySQL de Aiven");
+
+
+    // ========================================
+    // TABLA MENSAJES DE SOPORTE
+    // ========================================
 
     connection.query(
         `
-            CREATE TABLE IF NOT EXISTS mensajes_soporte (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                usuario_id INT NOT NULL,
-                autor_rol VARCHAR(20) NOT NULL,
-                mensaje VARCHAR(1000) NOT NULL,
-                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                INDEX (usuario_id),
-                FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-                    ON DELETE CASCADE
-            )
+        CREATE TABLE IF NOT EXISTS mensajes_soporte (
+
+            id INT AUTO_INCREMENT PRIMARY KEY,
+
+            usuario_id INT NOT NULL,
+
+            autor_rol VARCHAR(20) NOT NULL,
+
+            mensaje VARCHAR(1000) NOT NULL,
+
+            fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            INDEX (usuario_id),
+
+            FOREIGN KEY (usuario_id)
+                REFERENCES usuarios(id)
+                ON DELETE CASCADE
+
+        )
         `,
         (error) => {
+
             if (error) {
-                console.log("Error creando mensajes de soporte:", error.message);
+
+                console.log(
+                    "Error creando mensajes de soporte:",
+                    error.message
+                );
+
             }
+
         }
     );
 
+
+    // ========================================
+    // VERIFICAR BOLETAS DISPONIBLES
+    // ========================================
+
     connection.query(
         `
-            SELECT COUNT(*) AS existe
-            FROM information_schema.columns
-            WHERE table_schema = DATABASE()
-              AND table_name = 'eventos'
-              AND column_name = 'boletas_disponibles'
+        SELECT COUNT(*) AS existe
+
+        FROM information_schema.columns
+
+        WHERE table_schema = DATABASE()
+
+          AND table_name = 'eventos'
+
+          AND column_name = 'boletas_disponibles'
         `,
         (error, resultados) => {
 
-            if (error || resultados[0].existe > 0) {
+            if (error) {
+
+                console.log(
+                    "Error verificando boletas:",
+                    error.message
+                );
+
                 return;
             }
 
+
+            if (resultados[0].existe > 0) {
+
+                return;
+
+            }
+
+
+            // ========================================
+            // AGREGAR COLUMNA
+            // ========================================
+
             connection.query(
                 `
-                    ALTER TABLE eventos
-                    ADD COLUMN boletas_disponibles INT NOT NULL DEFAULT 100
+                ALTER TABLE eventos
+
+                ADD COLUMN boletas_disponibles
+                INT NOT NULL DEFAULT 100
                 `,
                 (error) => {
 
                     if (error) {
+
                         console.log(
                             "Error agregando el límite de boletas:",
                             error.message
                         );
+
                     }
+
                 }
             );
+
         }
     );
 
 });
+
 
 module.exports = connection;
