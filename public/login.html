@@ -137,12 +137,18 @@
                 Contraseña
             </label>
 
-            <input
-                type="password"
-                id="passwordLogin"
-                placeholder="Tu contraseña"
-                required
-            >
+            <div class="campo-password">
+                <input
+                    type="password"
+                    id="passwordLogin"
+                    placeholder="Tu contraseña"
+                    autocomplete="current-password"
+                    required
+                >
+                <button class="alternar-password" type="button" data-password-target="passwordLogin" aria-label="Mostrar contraseña" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                </button>
+            </div>
 
 
             <button
@@ -171,6 +177,10 @@
             id="mensajeLogin"
             class="centrado"
         ></p>
+
+        <p class="centrado">
+            <a href="recuperar.html">¿Olvidaste tu contraseña?</a>
+        </p>
 
 
         <p class="centrado">

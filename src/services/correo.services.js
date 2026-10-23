@@ -5,16 +5,22 @@ const nodemailer = require("nodemailer");
 // CONFIGURACIÓN DEL CORREO
 // ========================================
 
-const transporter = nodemailer.createTransport({
+function crearTransportador() {
+    const usuarioCorreo = process.env.MAIL_USER;
+    const passwordCorreo = process.env.MAIL_PASSWORD;
 
-    service: "gmail",
-
-    auth: {
-        user: "eliteevents949@gmail.com",
-        pass: "docv hgvu yjjr tfqr"
+    if (!usuarioCorreo || !passwordCorreo) {
+        throw new Error("Configura MAIL_USER y MAIL_PASSWORD para enviar correos");
     }
 
-});
+    return nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: usuarioCorreo,
+            pass: passwordCorreo
+        }
+    });
+}
 
 
 // ========================================
@@ -28,7 +34,7 @@ async function enviarNotificacion(
 
     const mensaje = {
 
-        from: "eliteevents949@gmail.com",
+        from: process.env.MAIL_USER,
 
         to: correoDestino,
 
@@ -55,7 +61,7 @@ async function enviarNotificacion(
 
     };
 
-    await transporter.sendMail(mensaje);
+    await crearTransportador().sendMail(mensaje);
 
     console.log(
         "📧 Correo enviado a:",
@@ -71,7 +77,7 @@ async function enviarConfirmacionPago(
 ) {
 
     const destinatarios = [
-        "eliteevents949@gmail.com",
+        process.env.MAIL_USER,
         correoUsuario
     ].filter(
         (correo, indice, lista) =>
@@ -80,7 +86,7 @@ async function enviarConfirmacionPago(
 
     const mensaje = {
 
-        from: "eliteevents949@gmail.com",
+        from: process.env.MAIL_USER,
 
         to: destinatarios,
 
@@ -96,11 +102,29 @@ async function enviarConfirmacionPago(
         `
     };
 
-    await transporter.sendMail(mensaje);
+    await crearTransportador().sendMail(mensaje);
+}
+
+
+async function enviarEnlaceRecuperacion(correoDestino, enlace) {
+    await crearTransportador().sendMail({
+        from: process.env.MAIL_USER,
+        to: correoDestino,
+        subject: "Recupera tu contraseña de Elite Events",
+        html: `
+            <h2>Restablece tu contraseña</h2>
+            <p>Recibimos una solicitud para cambiar la contraseña de tu cuenta.</p>
+            <p><a href="${enlace}">Crear una nueva contraseña</a></p>
+            <p>Este enlace vence en una hora y solo puede utilizarse una vez.</p>
+            <p>Si no solicitaste el cambio, puedes ignorar este mensaje.</p>
+            <p>Elite Events</p>
+        `
+    });
 }
 
 
 module.exports = {
     enviarNotificacion,
-    enviarConfirmacionPago
+    enviarConfirmacionPago,
+    enviarEnlaceRecuperacion
 };

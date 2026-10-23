@@ -1566,3 +1566,65 @@ nav a:focus-visible,
         gap: 4px;
     }
 }
+
+.campo-password {
+    position: relative;
+    width: 100%;
+}
+
+.campo-password input {
+    padding-right: 52px;
+}
+
+.alternar-password {
+    position: absolute;
+    top: 0;
+    right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 44px;
+    padding: 10px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--gris-texto);
+    cursor: pointer;
+}
+
+.alternar-password:hover,
+.alternar-password:focus-visible {
+    color: var(--morado);
+}
+
+.alternar-password svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+}
+
+.form-recuperacion[hidden] {
+    display: none;
+}
+
+.form-recuperacion {
+    margin-top: 24px;
+}
+
+.formulario > p.centrado:has(+ form.form-recuperacion) {
+    margin-bottom: 8px;
+}
+
+:root[data-tema="oscuro"] .alternar-password {
+    color: var(--gris-texto);
+}
+
+:root[data-tema="oscuro"] .alternar-password:hover,
+:root[data-tema="oscuro"] .alternar-password:focus-visible {
+    color: var(--morado-oscuro);
+}

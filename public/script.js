@@ -7,6 +7,104 @@ const temaGuardado =
 
 document.documentElement.dataset.tema = temaGuardado;
 
+document.querySelectorAll(".alternar-password").forEach(function (boton) {
+    boton.addEventListener("click", function () {
+        const campo = document.getElementById(boton.dataset.passwordTarget);
+        if (!campo) {
+            return;
+        }
+
+        const mostrar = campo.type === "password";
+        campo.type = mostrar ? "text" : "password";
+        boton.setAttribute("aria-pressed", String(mostrar));
+        boton.setAttribute(
+            "aria-label",
+            mostrar ? "Ocultar contraseña" : "Mostrar contraseña"
+        );
+        boton.title = mostrar ? "Ocultar contraseña" : "Mostrar contraseña";
+    });
+});
+
+const formRecuperar = document.getElementById("formRecuperar");
+const formRestablecer = document.getElementById("formRestablecer");
+const mensajeRecuperacion = document.getElementById("mensajeRecuperacion");
+const parametroToken = new URLSearchParams(window.location.search).get("token");
+
+if (formRecuperar && formRestablecer) {
+    if (parametroToken) {
+        formRecuperar.hidden = true;
+        formRestablecer.hidden = false;
+        document.getElementById("correoRecuperacion").required = false;
+        document.getElementById("tituloRecuperacion").textContent = "Crear contraseña nueva";
+        document.getElementById("descripcionRecuperacion").textContent =
+            "Elige una contraseña de al menos 6 caracteres para tu cuenta.";
+    }
+
+    formRecuperar.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const boton = formRecuperar.querySelector("button[type='submit']");
+        boton.disabled = true;
+        mensajeRecuperacion.textContent = "Enviando solicitud...";
+
+        try {
+            const respuesta = await fetch("/api/usuarios/recuperar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    correo: document.getElementById("correoRecuperacion").value.trim()
+                })
+            });
+            const datos = await respuesta.json();
+            mensajeRecuperacion.textContent = datos.mensaje ||
+                "Si el correo pertenece a una cuenta, recibirás un enlace para restablecer la contraseña.";
+            if (respuesta.ok) {
+                formRecuperar.reset();
+            }
+        } catch (error) {
+            mensajeRecuperacion.textContent = "No se pudo conectar con el servidor.";
+        } finally {
+            boton.disabled = false;
+        }
+    });
+
+    formRestablecer.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const password = document.getElementById("nuevaPassword").value;
+        const confirmarPassword = document.getElementById("confirmarPassword").value;
+
+        if (password !== confirmarPassword) {
+            mensajeRecuperacion.textContent = "Las contraseñas no coinciden.";
+            return;
+        }
+
+        const boton = formRestablecer.querySelector("button[type='submit']");
+        boton.disabled = true;
+        mensajeRecuperacion.textContent = "Actualizando contraseña...";
+
+        try {
+            const respuesta = await fetch("/api/usuarios/restablecer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: parametroToken, password: password })
+            });
+            const datos = await respuesta.json();
+            mensajeRecuperacion.textContent = datos.mensaje ||
+                "No se pudo actualizar la contraseña.";
+
+            if (respuesta.ok) {
+                formRestablecer.reset();
+                formRestablecer.hidden = true;
+                document.getElementById("descripcionRecuperacion").textContent =
+                    "Tu contraseña ya fue actualizada. Puedes iniciar sesión.";
+            }
+        } catch (error) {
+            mensajeRecuperacion.textContent = "No se pudo conectar con el servidor.";
+        } finally {
+            boton.disabled = false;
+        }
+    });
+}
+
 function actualizarBotonTema(boton, tema) {
     const temaOscuro = tema === "oscuro";
 

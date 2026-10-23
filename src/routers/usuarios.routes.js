@@ -17,5 +17,15 @@ router.post(
     usuariosController.login
 );
 
+router.post(
+    "/recuperar",
+    usuariosController.solicitarRecuperacion
+);
+
+router.post(
+    "/restablecer",
+    usuariosController.restablecerPassword
+);
+
 
 module.exports = router;
