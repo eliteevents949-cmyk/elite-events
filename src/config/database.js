@@ -4,21 +4,10 @@ const mysql = require("mysql2");
 
 
 // ========================================
-// VERIFICAR VARIABLES DE ENTORNO
-// ========================================
-
-console.log("========== CONFIGURACIÓN MYSQL ==========");
-console.log("DB_HOST:", process.env.DB_HOST);
-console.log("DB_NAME:", process.env.DB_NAME);
-console.log("DB_PORT:", process.env.DB_PORT);
-console.log("DB_USER:", process.env.DB_USER);
-console.log("DB_PASSWORD definida:", !!process.env.DB_PASSWORD);
-console.log("=========================================");
-
-
-// ========================================
 // CONEXIÓN A MYSQL
 // ========================================
+
+const usarSSL = process.env.DB_SSL === "true";
 
 const connection = mysql.createConnection({
 
@@ -32,9 +21,9 @@ const connection = mysql.createConnection({
 
     database: process.env.DB_NAME,
 
-    ssl: {
-        rejectUnauthorized: false
-    }
+    ssl: usarSSL
+        ? { rejectUnauthorized: false }
+        : undefined
 
 });
 
@@ -53,7 +42,7 @@ connection.connect((error) => {
         return;
     }
 
-    console.log("✅ Conectado a MySQL de Aiven");
+    console.log("✅ Conectado a MySQL");
 
 
     // ========================================

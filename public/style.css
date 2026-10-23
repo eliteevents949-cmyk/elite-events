@@ -1219,16 +1219,13 @@ body,
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    min-height: 38px;
-    padding: 7px 11px;
+    width: 40px;
+    height: 40px;
+    padding: 9px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 5px;
     background: transparent;
     color: white;
-    font: inherit;
-    font-size: 13px;
-    white-space: nowrap;
     cursor: pointer;
 }
 
@@ -1330,5 +1327,80 @@ body,
     .hero-imagen img {
         width: min(180px, 65vw) !important;
         height: auto !important;
+    }
+}
+
+.boton-menu {
+    display: none;
+}
+
+@media (max-width: 800px) {
+    header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        justify-items: stretch;
+        gap: 10px 12px;
+        padding: 10px 16px;
+    }
+
+    header .logo {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .boton-menu {
+        display: inline-flex;
+        grid-column: 2;
+        grid-row: 1;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: 5px;
+        background: transparent;
+        color: white;
+        font: inherit;
+        font-size: 27px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .boton-menu:hover,
+    .boton-menu:focus-visible {
+        background: rgba(255, 255, 255, 0.14);
+    }
+
+    header nav {
+        display: none;
+        grid-column: 1 / -1;
+        grid-row: 2;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+        padding: 8px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    header nav.menu-abierto {
+        display: flex;
+    }
+
+    header nav a {
+        justify-content: flex-start;
+        padding: 10px 8px;
+    }
+
+    header nav .boton-tema {
+        margin: 4px 0;
+    }
+
+    header .cuenta {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 4px;
     }
 }
