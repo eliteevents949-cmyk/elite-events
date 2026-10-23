@@ -1330,6 +1330,168 @@ body,
     }
 }
 
+header {
+    box-shadow: 0 6px 20px rgba(33, 26, 46, 0.12);
+}
+
+.hero {
+    border-radius: 9px;
+    box-shadow: 0 18px 48px rgba(33, 26, 46, 0.08);
+}
+
+.hero h1 {
+    line-height: 1.08;
+    text-wrap: balance;
+}
+
+.hero p {
+    max-width: 48ch;
+}
+
+.botones {
+    justify-content: flex-start;
+    gap: 14px;
+}
+
+.btn-principal,
+.btn-secundario {
+    min-height: 48px;
+    border-radius: 6px;
+}
+
+.categoria {
+    min-height: 178px;
+    padding: 28px 26px;
+    box-shadow: 0 8px 24px rgba(33, 26, 46, 0.08);
+}
+
+.categoria:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 32px rgba(33, 26, 46, 0.14);
+}
+
+.categoria:focus-visible,
+.btn-principal:focus-visible,
+.btn-secundario:focus-visible,
+.cuenta a:focus-visible,
+nav a:focus-visible,
+.boton-menu:focus-visible,
+.boton-tema:focus-visible {
+    outline: 3px solid var(--azul);
+    outline-offset: 3px;
+}
+
+@media (min-width: 801px) and (max-width: 1000px) {
+    header {
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto auto;
+        gap: 8px 14px;
+        padding: 10px 4%;
+    }
+
+    header .logo {
+        grid-column: 1;
+        grid-row: 1;
+        width: 130px;
+        height: 48px;
+    }
+
+    header .logo img {
+        width: 125px;
+        height: 48px;
+    }
+
+    header .boton-menu {
+        display: inline-flex;
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    header nav {
+        display: none;
+        grid-column: 1 / -1;
+        grid-row: 3;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+        padding: 8px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    header nav.menu-abierto {
+        display: flex;
+    }
+
+    header nav a {
+        justify-content: flex-start;
+        padding: 10px 8px;
+    }
+
+    header .cuenta {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-content: flex-end;
+        gap: 4px;
+    }
+
+    header .btn-login,
+    header .btn-cerrar {
+        padding: 7px 8px;
+        font-size: 13px;
+    }
+
+    header .btn-registro {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .hero {
+        gap: 24px;
+        padding: 42px 38px;
+    }
+
+    .hero-text {
+        width: 58%;
+    }
+
+    .hero-imagen {
+        width: 38% !important;
+        min-height: 0;
+    }
+
+    .hero-imagen img {
+        width: min(230px, 100%) !important;
+        height: auto !important;
+    }
+
+    .hero h1 {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 800px) {
+    .hero {
+        border-radius: 8px;
+        box-shadow: 0 12px 32px rgba(33, 26, 46, 0.08);
+    }
+
+    .botones {
+        justify-content: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
 .boton-menu {
     display: none;
 }
