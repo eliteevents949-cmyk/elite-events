@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 
 // ========================================
@@ -17,7 +18,7 @@ function crearTransportador() {
         service: "gmail",
         auth: {
             user: usuarioCorreo,
-            pass: passwordCorreo
+            pass: passwordCorreo.replace(/\s/g, "")
         }
     });
 }
@@ -34,7 +35,7 @@ async function enviarNotificacion(
 
     const mensaje = {
 
-        from: process.env.MAIL_USER,
+    from: process.env.MAIL_USER,
 
         to: correoDestino,
 
@@ -77,7 +78,7 @@ async function enviarConfirmacionPago(
 ) {
 
     const destinatarios = [
-        process.env.MAIL_USER,
+    process.env.MAIL_USER,
         correoUsuario
     ].filter(
         (correo, indice, lista) =>
@@ -86,7 +87,7 @@ async function enviarConfirmacionPago(
 
     const mensaje = {
 
-        from: process.env.MAIL_USER,
+    from: process.env.MAIL_USER,
 
         to: destinatarios,
 

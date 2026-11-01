@@ -4,7 +4,10 @@ const fs = require("fs");
 const path = require("path");
 const mysql = require("mysql2");
 
-// 📁 Ubicación del archivo SQL exportado desde phpMyAdmin
+// =====================================================
+// 📁 UBICACIÓN DEL ARCHIVO SQL
+// =====================================================
+
 const sqlFile = path.join(
     process.env.USERPROFILE,
     "Downloads",
@@ -13,107 +16,309 @@ const sqlFile = path.join(
 
 // Verificar que exista el archivo
 if (!fs.existsSync(sqlFile)) {
-    console.error("❌ No se encontró el archivo elite_events.sql");
-    console.error("📁 Se buscó en:");
+    console.error("");
+    console.error("❌ NO SE ENCONTRÓ EL ARCHIVO elite_events.sql");
+    console.error("------------------------------------------");
+    console.error("Se buscó en:");
     console.error(sqlFile);
+    console.error("------------------------------------------");
     process.exit(1);
 }
 
-// Leer el archivo SQL
-const sql = fs.readFileSync(sqlFile, "utf8");
+console.log("");
+console.log("==========================================");
+console.log("📄 ARCHIVO SQL ENCONTRADO");
+console.log("==========================================");
+console.log(sqlFile);
+console.log("");
 
-console.log("📄 Archivo SQL encontrado correctamente.");
+// =====================================================
+// 📖 LEER ARCHIVO SQL
+// =====================================================
 
-// 🔐 Conexión a Aiven
+const sqlOriginal = fs.readFileSync(sqlFile, "utf8");
+
+console.log("📦 Tamaño del archivo:");
+console.log(sqlOriginal.length, "caracteres");
+console.log("");
+
+// =====================================================
+// 🧹 LIMPIAR COMANDOS DEL SQL
+// =====================================================
+
+// Eliminamos CREATE DATABASE y USE porque queremos
+// importar todo dentro de la base de datos defaultdb.
+
+const sql = sqlOriginal
+    .replace(
+        /CREATE\s+DATABASE\s+(IF\s+NOT\s+EXISTS\s+)?[`'"]?[^;`'"]+[`'"]?\s*;/gi,
+        ""
+    )
+    .replace(
+        /USE\s+[`'"]?[^;`'"]+[`'"]?\s*;/gi,
+        ""
+    );
+
+// =====================================================
+// 🔐 CONFIGURACIÓN DE AIVEN
+// =====================================================
+
+console.log("==========================================");
+console.log("🔐 CONECTANDO A AIVEN");
+console.log("==========================================");
+
+console.log("Host:", process.env.DB_HOST);
+console.log("Puerto:", process.env.DB_PORT);
+console.log("Usuario:", process.env.DB_USER);
+console.log("Base:", process.env.DB_NAME);
+console.log(
+    "Password definida:",
+    process.env.DB_PASSWORD ? "true" : "false"
+);
+console.log("");
+
+// =====================================================
+// 🔌 CONEXIÓN MYSQL
+// =====================================================
+
 const connection = mysql.createConnection({
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-
-    // Necesario porque el archivo SQL contiene muchas instrucciones
     multipleStatements: true,
-
-    // Aiven requiere conexión SSL
     ssl: {
         rejectUnauthorized: false
     }
 });
 
-// Conectar
+
+
+// =====================================================
+// 🔌 CONECTAR
+// =====================================================
+
 connection.connect((error) => {
     if (error) {
-        console.error("❌ Error conectando a Aiven:");
+        console.error("");
+        console.error("❌ ERROR CONECTANDO A AIVEN");
+        console.error("------------------------------------------");
         console.error(error.message);
-        return;
+        console.error("------------------------------------------");
+        console.error("");
+
+        process.exit(1);
     }
 
-    console.log("✅ Conectado a Aiven");
+    console.log("✅ CONECTADO A MYSQL DE AIVEN");
+    console.log("");
 
-    // Aiven puede exigir que cada tabla tenga PRIMARY KEY
-    // desde el momento en que se crea.
-    // Nuestro archivo de phpMyAdmin agrega las PRIMARY KEY
-    // después mediante ALTER TABLE.
+    // =================================================
+    // 🗄️ SELECCIONAR BASE DE DATOS
+    // =================================================
+
     connection.query(
-        "SET SESSION sql_require_primary_key = 0",
+        "USE defaultdb",
         (error) => {
             if (error) {
-                console.error(
-                    "❌ No se pudo preparar Aiven para importar:"
-                );
+                console.error("");
+                console.error("❌ NO SE PUDO SELECCIONAR defaultdb");
+                console.error("------------------------------------------");
                 console.error(error.message);
+                console.error("------------------------------------------");
 
                 connection.end();
                 return;
             }
 
-            console.log("✅ Aiven preparado para importar");
-            console.log("📦 Importando elite_events.sql...");
-            console.log("⏳ Espera unos segundos...");
+            console.log("✅ Base de datos defaultdb seleccionada");
+            console.log("");
 
-            // Importar todo el archivo SQL
-            connection.query(sql, (error) => {
-                if (error) {
-                    console.error("❌ Error importando la base de datos:");
-                    console.error(error.message);
+            // =============================================
+            // ⚙️ PREPARAR AIVEN PARA LA IMPORTACIÓN
+            // =============================================
 
-                    connection.end();
-                    return;
-                }
+            connection.query(
+                `
+                SET SESSION sql_require_primary_key = 0;
+                SET FOREIGN_KEY_CHECKS = 0;
+                SET SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO';
+                `,
+                (error) => {
+                    if (error) {
+                        console.error("");
+                        console.error(
+                            "❌ ERROR PREPARANDO AIVEN PARA IMPORTAR"
+                        );
+                        console.error("------------------------------------------");
+                        console.error(error.message);
+                        console.error("------------------------------------------");
 
-                console.log("");
-                console.log("🎉 ¡BASE DE DATOS IMPORTADA CORRECTAMENTE!");
-                console.log("✅ Tablas de Elite Events copiadas a Aiven.");
-                console.log("✅ Datos de Elite Events copiados a Aiven.");
-                console.log("");
-
-                // Verificar las tablas creadas
-                connection.query(
-                    "SHOW TABLES",
-                    (error, resultados) => {
-                        if (error) {
-                            console.error(
-                                "⚠️ La importación terminó, pero no se pudieron verificar las tablas."
-                            );
-                            console.error(error.message);
-                        } else {
-                            console.log("📋 Tablas encontradas en Aiven:");
-
-                            resultados.forEach((tabla) => {
-                                console.log(
-                                    "   ✅",
-                                    Object.values(tabla)[0]
-                                );
-                            });
-                        }
-
-                        console.log("");
-                        console.log("🔌 Cerrando conexión...");
                         connection.end();
+                        return;
                     }
-                );
-            });
+
+                    console.log("✅ Aiven preparado para importar");
+                    console.log("");
+
+                    // =============================================
+                    // 📦 IMPORTAR BASE DE DATOS
+                    // =============================================
+
+                    console.log(
+                        "=========================================="
+                    );
+                    console.log("📦 IMPORTANDO ELITE EVENTS");
+                    console.log(
+                        "=========================================="
+                    );
+                    console.log(
+                        "⏳ Esto puede tardar unos segundos..."
+                    );
+                    console.log("");
+
+                    connection.query(
+                        sql,
+                        (error) => {
+                            if (error) {
+                                console.error("");
+                                console.error(
+                                    "❌ ERROR IMPORTANDO LA BASE DE DATOS"
+                                );
+                                console.error(
+                                    "------------------------------------------"
+                                );
+                                console.error(error.message);
+                                console.error(
+                                    "------------------------------------------"
+                                );
+                                console.error("");
+
+                                connection.end();
+                                return;
+                            }
+
+                            console.log("");
+                            console.log(
+                                "=========================================="
+                            );
+                            console.log(
+                                "🎉 IMPORTACIÓN COMPLETADA"
+                            );
+                            console.log(
+                                "=========================================="
+                            );
+                            console.log(
+                                "✅ Tablas copiadas a Aiven"
+                            );
+                            console.log(
+                                "✅ Datos copiados a Aiven"
+                            );
+                            console.log("");
+
+                            // =========================================
+                            // 🔄 VOLVER A ACTIVAR FOREIGN KEYS
+                            // =========================================
+
+                            connection.query(
+                                "SET FOREIGN_KEY_CHECKS = 1",
+                                (error) => {
+                                    if (error) {
+                                        console.error(
+                                            "⚠️ No se pudo activar FOREIGN_KEY_CHECKS"
+                                        );
+                                        console.error(
+                                            error.message
+                                        );
+                                    }
+
+                                    // =================================
+                                    // 📋 MOSTRAR TABLAS
+                                    // =================================
+
+                                    connection.query(
+                                        "SHOW TABLES",
+                                        (error, resultados) => {
+                                            if (error) {
+                                                console.error("");
+                                                console.error(
+                                                    "❌ NO SE PUDIERON VERIFICAR LAS TABLAS"
+                                                );
+                                                console.error(
+                                                    error.message
+                                                );
+
+                                                connection.end();
+                                                return;
+                                            }
+
+                                            console.log("");
+                                            console.log(
+                                                "=========================================="
+                                            );
+                                            console.log(
+                                                "📋 TABLAS EN AIVEN"
+                                            );
+                                            console.log(
+                                                "=========================================="
+                                            );
+
+                                            if (
+                                                resultados.length ===
+                                                0
+                                            ) {
+                                                console.log(
+                                                    "⚠️ No se encontraron tablas."
+                                                );
+                                            } else {
+                                                resultados.forEach(
+                                                    (tabla) => {
+                                                        console.log(
+                                                            "   ✅",
+                                                            Object.values(
+                                                                tabla
+                                                            )[0]
+                                                        );
+                                                    }
+                                                );
+                                            }
+
+                                            console.log("");
+                                            console.log(
+                                                "=========================================="
+                                            );
+                                            console.log(
+                                                "🔌 CERRANDO CONEXIÓN"
+                                            );
+                                            console.log(
+                                                "=========================================="
+                                            );
+
+                                            connection.end(
+                                                (error) => {
+                                                    if (error) {
+                                                        console.error(
+                                                            "⚠️ Error cerrando conexión:"
+                                                        );
+                                                        console.error(
+                                                            error.message
+                                                        );
+                                                    } else {
+                                                        console.log(
+                                                            "✅ Conexión cerrada correctamente."
+                                                        );
+                                                    }
+                                                }
+                                            );
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    );
+                }
+            );
         }
     );
 });
