@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración - Elite Events</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <header class="admin-header">
+        <a class="admin-brand" href="index.html">Elite Events <span>Administración</span></a>
+        <div class="admin-header-actions">
+            <a href="index.html">Volver al sitio</a>
+            <button type="button" id="salirAdmin">Cerrar sesión</button>
+        </div>
+    </header>
+
+    <main class="admin-shell">
+        <section class="admin-intro">
+            <p class="perfil-etiqueta">GESTIÓN DE PLATAFORMA</p>
+            <h1>Panel administrador</h1>
+            <p id="saludoAdmin">Eventos, cuentas y reservas de Elite Events.</p>
+        </section>
+
+        <nav class="admin-tabs" aria-label="Secciones de administración">
+            <button type="button" class="admin-tab activo" data-panel="eventosAdmin">Eventos</button>
+            <button type="button" class="admin-tab" data-panel="usuariosAdmin">Perfiles registrados</button>
+            <button type="button" class="admin-tab" data-panel="reservasAdmin">Reservas y comprobantes</button>
+        </nav>
+
+        <p id="mensajeAdmin" class="admin-mensaje" aria-live="polite"></p>
+
+        <section id="eventosAdmin" class="admin-panel-seccion">
+            <div class="admin-seccion-titulo">
+                <div><p class="perfil-etiqueta">CATÁLOGO</p><h2>Eventos publicados</h2></div>
+                <button type="button" class="admin-secondary" id="recargarEventos">Actualizar</button>
+            </div>
+            <div id="formularioEdicionAdmin" class="admin-editor" hidden>
+                <div class="admin-seccion-titulo"><h3 id="tituloEdicionAdmin">Editar evento</h3><button type="button" id="cancelarEdicionAdmin" class="admin-secondary">Cancelar</button></div>
+                <form id="formEventoAdmin" class="admin-formulario">
+                    <input type="hidden" id="eventoAdminId">
+                    <label>Nombre<input id="nombreAdmin" name="nombre" required maxlength="150"></label>
+                    <label>Categoría<input id="categoriaAdmin" name="categoria" required maxlength="80"></label>
+                    <label>Fecha<input id="fechaAdmin" name="fecha" type="date" required></label>
+                    <label>Hora<input id="horaAdmin" name="hora" type="time" required></label>
+                    <label>Lugar<input id="lugarAdmin" name="lugar" required maxlength="180"></label>
+                    <label>Precio por boleta<input id="precioAdmin" name="precio" type="number" min="0" step="1" required></label>
+                    <label>Boletas disponibles<input id="boletasAdmin" name="boletas" type="number" min="0" step="1" required></label>
+                    <label class="admin-campo-ancho">Descripción<textarea id="descripcionAdmin" name="descripcion" rows="4"></textarea></label>
+                    <label class="admin-campo-ancho">Cambiar imagen<input id="imagenAdmin" name="imagen" type="file" accept="image/*"></label>
+                    <div class="admin-campo-ancho admin-form-actions"><button type="submit" class="admin-primary">Guardar cambios</button></div>
+                </form>
+            </div>
+            <div class="admin-tabla-wrap"><table class="admin-tabla"><thead><tr><th>Evento</th><th>Fecha</th><th>Lugar</th><th>Precio</th><th>Boletas</th><th>Acciones</th></tr></thead><tbody id="filasEventosAdmin"></tbody></table></div>
+        </section>
+
+        <section id="usuariosAdmin" class="admin-panel-seccion" hidden>
+            <div class="admin-seccion-titulo"><div><p class="perfil-etiqueta">CUENTAS</p><h2>Perfiles registrados</h2></div></div>
+            <div class="admin-tabla-wrap"><table class="admin-tabla"><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Registro</th></tr></thead><tbody id="filasUsuariosAdmin"></tbody></table></div>
+        </section>
+
+        <section id="reservasAdmin" class="admin-panel-seccion" hidden>
+            <div class="admin-seccion-titulo"><div><p class="perfil-etiqueta">ACTIVIDAD</p><h2>Reservas y comprobantes demo</h2><p>Son registros de reserva; la plataforma no procesa cobros reales.</p></div></div>
+            <div class="admin-tabla-wrap"><table class="admin-tabla"><thead><tr><th>Referencia</th><th>Comprador</th><th>Evento</th><th>Cantidad</th><th>Total demo</th><th>Estado</th><th>Fecha de reserva</th></tr></thead><tbody id="filasReservasAdmin"></tbody></table></div>
+        </section>
+    </main>
+
+    <script src="./admin.js"></script>
+</body>
+</html>

@@ -2,6 +2,8 @@ const usuariosService =
     require("../services/usuarios.services");
 const correoService =
     require("../services/correo.services");
+const adminAuthService =
+    require("../services/admin-auth.services");
 
 const solicitudesRecuperacion = new Map();
 const intervaloRecuperacion = 60 * 1000;
@@ -117,6 +119,9 @@ async function login(req, res) {
         }
 
 
+        const tokenAdministrador =
+            adminAuthService.crearTokenAdministrador(usuario);
+
         res.json({
 
             mensaje: "Inicio de sesión correcto",
@@ -127,7 +132,8 @@ async function login(req, res) {
                 apellido: usuario.apellido,
                 correo: usuario.correo,
                 rol: usuario.rol
-            }
+            },
+            tokenAdministrador
 
         });
 

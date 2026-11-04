@@ -1,5 +1,47 @@
 const db = require("../config/database");
 
+let estadoPublicacionListo;
+
+function asegurarEstadoPublicacion() {
+    if (!estadoPublicacionListo) {
+        estadoPublicacionListo = new Promise((resolve, reject) => {
+            db.query(
+                `SELECT COUNT(*) AS existe
+                 FROM information_schema.columns
+                 WHERE table_schema = DATABASE()
+                   AND table_name = 'eventos'
+                   AND column_name = 'activo'`,
+                (error, resultados) => {
+                    if (error) {
+                        estadoPublicacionListo = null;
+                        reject(error);
+                        return;
+                    }
+
+                    if (resultados[0].existe > 0) {
+                        resolve();
+                        return;
+                    }
+
+                    db.query(
+                        "ALTER TABLE eventos ADD COLUMN activo TINYINT(1) NOT NULL DEFAULT 1",
+                        (errorMigracion) => {
+                            if (errorMigracion) {
+                                estadoPublicacionListo = null;
+                                reject(errorMigracion);
+                                return;
+                            }
+                            resolve();
+                        }
+                    );
+                }
+            );
+        });
+    }
+
+    return estadoPublicacionListo;
+}
+
 
 // ========================================
 // OBTENER TODOS LOS EVENTOS
@@ -7,11 +49,14 @@ const db = require("../config/database");
 
 async function obtenerEventos() {
 
+    await asegurarEstadoPublicacion();
+
     return new Promise((resolve, reject) => {
 
         const sql = `
             SELECT *
             FROM eventos
+            WHERE activo = 1
             ORDER BY fecha ASC
         `;
 
@@ -41,12 +86,14 @@ async function obtenerEventos() {
 
 async function obtenerEventosPorUsuario(usuarioId) {
 
+    await asegurarEstadoPublicacion();
+
     return new Promise((resolve, reject) => {
 
         const sql = `
             SELECT *
             FROM eventos
-            WHERE creado_por = ?
+            WHERE creado_por = ? AND activo = 1
             ORDER BY fecha ASC
         `;
 
@@ -151,11 +198,14 @@ async function crearEvento(evento) {
 
 async function eliminarEvento(id) {
 
+    await asegurarEstadoPublicacion();
+
     return new Promise((resolve, reject) => {
 
         const sql = `
-            DELETE FROM eventos
-            WHERE id = ?
+            UPDATE eventos
+            SET activo = 0
+            WHERE id = ? AND activo = 1
         `;
 
         db.query(
@@ -181,6 +231,69 @@ async function eliminarEvento(id) {
 }
 
 
+async function actualizarEvento(id, evento) {
+    await asegurarEstadoPublicacion();
+    return new Promise((resolve, reject) => {
+        const columnas = [
+            "nombre = ?",
+            "categoria = ?",
+            "fecha = ?",
+            "hora = ?",
+            "lugar = ?",
+            "precio = ?",
+            "boletas_disponibles = ?",
+            "descripcion = ?"
+        ];
+        const valores = [
+            evento.nombre,
+            evento.categoria,
+            evento.fecha,
+            evento.hora,
+            evento.lugar,
+            evento.precio,
+            evento.boletas,
+            evento.descripcion
+        ];
+
+        if (evento.imagen) {
+            columnas.push("imagen = ?");
+            valores.push(evento.imagen);
+        }
+
+        valores.push(id);
+        db.query(
+            `UPDATE eventos SET ${columnas.join(", ")} WHERE id = ? AND activo = 1`,
+            valores,
+            (error, resultado) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                if (resultado.affectedRows > 0) {
+                    resolve(resultado);
+                    return;
+                }
+
+                db.query(
+                    "SELECT id FROM eventos WHERE id = ? AND activo = 1",
+                    [id],
+                    (errorExistencia, filas) => {
+                        if (errorExistencia) {
+                            reject(errorExistencia);
+                            return;
+                        }
+                        resolve({
+                            ...resultado,
+                            affectedRows: filas.length ? 1 : 0
+                        });
+                    }
+                );
+            }
+        );
+    });
+}
+
+
 // ========================================
 // EXPORTAR
 // ========================================
@@ -193,6 +306,8 @@ module.exports = {
 
     crearEvento,
 
-    eliminarEvento
+    eliminarEvento,
+
+    actualizarEvento
 
 };

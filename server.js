@@ -88,6 +88,14 @@ app.use(
     eventosRoutes
 );
 
+const adminRoutes =
+    require("./src/routers/admin.routes");
+
+app.use(
+    "/api/admin",
+    adminRoutes
+);
+
 
 // ========================================
 // PÁGINA PRINCIPAL

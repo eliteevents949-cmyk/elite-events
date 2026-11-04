@@ -157,7 +157,7 @@ async function eliminarEvento(req, res) {
         }
 
         return res.status(200).json({
-            mensaje: "Evento eliminado correctamente"
+            mensaje: "Evento retirado de publicación; las reservas históricas se conservaron."
         });
 
     } catch (error) {
@@ -170,9 +170,64 @@ async function eliminarEvento(req, res) {
     }
 }
 
+
+async function actualizarEvento(req, res) {
+    const id = Number(req.params.id);
+    const {
+        nombre,
+        categoria,
+        fecha,
+        hora,
+        lugar,
+        precio,
+        descripcion,
+        boletas
+    } = req.body;
+
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ mensaje: "ID de evento inválido." });
+    }
+
+    if (!nombre?.trim() || !categoria?.trim() || !fecha || !hora || !lugar?.trim()) {
+        return res.status(400).json({ mensaje: "Completa los campos obligatorios." });
+    }
+
+    const precioNumerico = Number(precio);
+    const boletasNumericas = Number(boletas);
+    if (!Number.isFinite(precioNumerico) || precioNumerico < 0) {
+        return res.status(400).json({ mensaje: "El precio no es válido." });
+    }
+    if (!Number.isInteger(boletasNumericas) || boletasNumericas < 0) {
+        return res.status(400).json({ mensaje: "La cantidad de boletas no es válida." });
+    }
+
+    try {
+        const resultado = await eventosService.actualizarEvento(id, {
+            nombre: nombre.trim(),
+            categoria: categoria.trim(),
+            fecha,
+            hora,
+            lugar: lugar.trim(),
+            precio: precioNumerico,
+            boletas: boletasNumericas,
+            descripcion: descripcion || "",
+            imagen: req.file ? `/uploads/${req.file.filename}` : null
+        });
+
+        if (!resultado.affectedRows) {
+            return res.status(404).json({ mensaje: "El evento no existe." });
+        }
+        return res.json({ mensaje: "Evento actualizado correctamente." });
+    } catch (error) {
+        console.error("ERROR ACTUALIZANDO EVENTO:", error.message);
+        return res.status(500).json({ mensaje: "No se pudo actualizar el evento." });
+    }
+}
+
 module.exports = {
     obtenerEventos,
     obtenerEventosPorUsuario,
     crearEvento,
-    eliminarEvento
+    eliminarEvento,
+    actualizarEvento
 };

@@ -3,12 +3,73 @@ const db = require("../config/database");
 const correoService =
     require("./correo.services");
 
+let precioReservaListo;
+
+async function asegurarPrecioReserva() {
+    if (!precioReservaListo) {
+        precioReservaListo = new Promise((resolve, reject) => {
+            db.query(
+                `SELECT COUNT(*) AS existe
+                 FROM information_schema.columns
+                 WHERE table_schema = DATABASE()
+                   AND table_name = 'reservas'
+                   AND column_name = 'precio_unitario'`,
+                (error, resultados) => {
+                    if (error) {
+                        precioReservaListo = null;
+                        reject(error);
+                        return;
+                    }
+
+                    const completarMigracion = () => {
+                        db.query(
+                            `UPDATE reservas
+                             INNER JOIN eventos ON eventos.id = reservas.evento_id
+                             SET reservas.precio_unitario = eventos.precio
+                             WHERE reservas.precio_unitario IS NULL`,
+                            (errorActualizacion) => {
+                                if (errorActualizacion) {
+                                    precioReservaListo = null;
+                                    reject(errorActualizacion);
+                                    return;
+                                }
+                                resolve();
+                            }
+                        );
+                    };
+
+                    if (resultados[0].existe > 0) {
+                        completarMigracion();
+                        return;
+                    }
+
+                    db.query(
+                        "ALTER TABLE reservas ADD COLUMN precio_unitario DECIMAL(10, 2) NULL",
+                        (errorMigracion) => {
+                            if (errorMigracion) {
+                                precioReservaListo = null;
+                                reject(errorMigracion);
+                                return;
+                            }
+                            completarMigracion();
+                        }
+                    );
+                }
+            );
+        });
+    }
+
+    return precioReservaListo;
+}
+
 
 // ========================================
 // CREAR RESERVA
 // ========================================
 
 async function crearReserva(usuarioId, eventoId) {
+
+    await asegurarPrecioReserva();
 
     return new Promise((resolve, reject) => {
 
@@ -24,7 +85,9 @@ async function crearReserva(usuarioId, eventoId) {
                 eventos.creado_por,
                 eventos.boletas_disponibles,
                 usuarios.correo AS correo_creador,
-                comprador.correo AS correo_comprador
+                comprador.correo AS correo_comprador,
+                comprador.nombre AS nombre_comprador,
+                comprador.apellido AS apellido_comprador
             FROM eventos
             LEFT JOIN usuarios
                 ON eventos.creado_por = usuarios.id
@@ -96,13 +159,13 @@ async function crearReserva(usuarioId, eventoId) {
 
                 const sql = `
                     INSERT INTO reservas
-                    (usuario_id, evento_id)
-                    VALUES (?, ?)
+                    (usuario_id, evento_id, cantidad, precio_unitario)
+                    VALUES (?, ?, 1, ?)
                 `;
 
                         db.query(
                             sql,
-                            [usuarioId, eventoId],
+                            [usuarioId, eventoId, evento.precio],
                             async (error, resultado) => {
 
                                 if (error) {
@@ -126,7 +189,12 @@ async function crearReserva(usuarioId, eventoId) {
                             await correoService.enviarConfirmacionPago(
                                 evento.nombre,
                                 evento.precio,
-                                evento.correo_comprador
+                                evento.correo_comprador,
+                                {
+                                    referencia: resultado.insertId,
+                                    comprador: `${evento.nombre_comprador || ""} ${evento.apellido_comprador || ""}`.trim(),
+                                    cantidad: 1
+                                }
                             );
 
                             } catch (error) {
@@ -282,5 +350,6 @@ async function obtenerReservas(usuarioId) {
 
 module.exports = {
     crearReserva,
-    obtenerReservas
+    obtenerReservas,
+    asegurarPrecioReserva
 };

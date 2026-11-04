@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi perfil - Elite Events</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <header>
+        <div class="logo"><img src="./img/logo.png" alt="Elite Events"></div>
+        <nav></nav>
+        <div class="cuenta">
+            <a href="login.html" class="btn-login" id="btnLogin">Iniciar sesión</a>
+            <a href="registro.html" class="btn-registro" id="btnRegistro">Registrarse</a>
+            <button type="button" class="btn-cerrar" id="btnCerrarSesion" style="display: none;">Cerrar sesión</button>
+        </div>
+    </header>
+
+    <main class="pagina-perfil" id="paginaPerfil">
+        <section class="perfil-cabecera">
+            <p class="perfil-etiqueta">TU CUENTA</p>
+            <h1 id="saludoPerfil">Mi perfil</h1>
+            <p>Tu información y los datos de tu cuenta en Elite Events.</p>
+        </section>
+
+        <section class="perfil-contenido" aria-labelledby="tituloDatosPerfil">
+            <div class="perfil-foto-columna">
+                <div class="marco-foto-perfil">
+                    <img id="fotoPerfilGrande" alt="Foto de perfil" hidden>
+                    <span id="inicialesPerfil" aria-hidden="true"></span>
+                </div>
+                <input id="selectorFotoPerfil" type="file" accept="image/*" class="entrada-foto-perfil">
+                <label class="boton-foto-perfil" for="selectorFotoPerfil">Cambiar foto</label>
+                <button id="quitarFotoPerfil" class="quitar-foto-perfil" type="button">Quitar foto</button>
+                <p id="mensajeFotoPerfil" class="mensaje-foto-perfil" aria-live="polite"></p>
+            </div>
+
+            <div class="datos-perfil">
+                <p class="perfil-etiqueta">INFORMACIÓN PERSONAL</p>
+                <h2 id="tituloDatosPerfil">Datos de tu cuenta</h2>
+                <dl>
+                    <div class="dato-perfil"><dt>Nombre</dt><dd id="nombrePerfil"></dd></div>
+                    <div class="dato-perfil"><dt>Correo electrónico</dt><dd id="correoPerfil"></dd></div>
+                    <div class="dato-perfil"><dt>Tipo de cuenta</dt><dd id="rolPerfil"></dd></div>
+                    <div class="dato-perfil"><dt>Identificador</dt><dd id="idPerfil"></dd></div>
+                </dl>
+                <p class="nota-perfil">La foto se guarda en este navegador y dispositivo.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <h3>Elite Events</h3>
+        <p>Descubre. Organiza. Disfruta.</p>
+        <p>© 2026 Elite Events</p>
+    </footer>
+
+    <script src="./script.js"></script>
+</body>
+</html>

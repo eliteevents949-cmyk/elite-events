@@ -3,6 +3,8 @@ const multer = require("multer");
 
 const eventosController =
     require("../controllers/eventos.controller");
+const requerirAdministrador =
+    require("../middleware/admin.middleware");
 
 const router = express.Router();
 
@@ -75,7 +77,15 @@ router.post(
 
 router.delete(
     "/:id",
+    requerirAdministrador,
     eventosController.eliminarEvento
+);
+
+router.put(
+    "/:id",
+    requerirAdministrador,
+    upload.single("imagen"),
+    eventosController.actualizarEvento
 );
 
 

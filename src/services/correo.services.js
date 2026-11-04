@@ -74,11 +74,12 @@ async function enviarNotificacion(
 async function enviarConfirmacionPago(
     nombreEvento,
     precioBoleta,
-    correoUsuario
+    correoUsuario,
+    detalles = {}
 ) {
 
     const destinatarios = [
-    process.env.MAIL_USER,
+        process.env.ADMIN_EMAIL || process.env.MAIL_USER,
         correoUsuario
     ].filter(
         (correo, indice, lista) =>
@@ -87,18 +88,23 @@ async function enviarConfirmacionPago(
 
     const mensaje = {
 
-    from: process.env.MAIL_USER,
+        from: process.env.MAIL_USER,
 
         to: destinatarios,
 
         subject: "Confirmación de pago demo - Elite Events",
 
         html: `
-            <h2>Pago demo confirmado</h2>
-            <p>Se confirmó una reserva para el evento:</p>
-            <h3>${nombreEvento}</h3>
-            <p><strong>Precio de la boleta:</strong> $${Number(precioBoleta || 0).toLocaleString("es-CO")}</p>
-            <p>Este mensaje corresponde a una demostración y no representa un cobro real.</p>
+            <h2>Comprobante de reserva demo</h2>
+            <p>Se registró una reserva para el evento:</p>
+            <h3>${String(nombreEvento).replace(/[&<>"']/g, "")}</h3>
+            <p><strong>Referencia:</strong> ${Number(detalles.referencia) || "Pendiente"}</p>
+            <p><strong>Comprador:</strong> ${String(detalles.comprador || "Usuario").replace(/[&<>"']/g, "")}</p>
+            <p><strong>Correo:</strong> ${String(correoUsuario || "").replace(/[&<>"']/g, "")}</p>
+            <p><strong>Cantidad:</strong> ${Number(detalles.cantidad) || 1}</p>
+            <p><strong>Valor por boleta:</strong> $${Number(precioBoleta || 0).toLocaleString("es-CO")}</p>
+            <p><strong>Total de reserva:</strong> $${(Number(precioBoleta || 0) * (Number(detalles.cantidad) || 1)).toLocaleString("es-CO")}</p>
+            <p>Esta plataforma registra reservas de demostración y no procesa ni confirma cobros reales.</p>
             <p>Elite Events</p>
         `
     };

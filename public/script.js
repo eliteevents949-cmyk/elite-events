@@ -282,6 +282,15 @@ if (formularioLogin) {
                     JSON.stringify(datos.usuario)
                 );
 
+                if (datos.tokenAdministrador) {
+                    localStorage.setItem(
+                        "tokenAdministrador",
+                        datos.tokenAdministrador
+                    );
+                } else {
+                    localStorage.removeItem("tokenAdministrador");
+                }
+
                 // Eliminar datos antiguos para evitar conflictos
                 localStorage.removeItem("usuarioActual");
 
@@ -290,8 +299,9 @@ if (formularioLogin) {
 
                 setTimeout(function () {
 
-                    window.location.href =
-                        "eventos.html";
+                    window.location.href = datos.usuario.rol === "admin"
+                        ? "admin.html"
+                        : "eventos.html";
 
                 }, 1000);
 
@@ -765,6 +775,8 @@ function cerrarSesion() {
         "usuarioActual"
     );
 
+    localStorage.removeItem("tokenAdministrador");
+
     mostrarNotificacion(
         "Sesión cerrada correctamente.",
         "success"
@@ -814,6 +826,197 @@ function mostrarUsuario() {
         usuario.nombre ||
         usuario.correo ||
         "Usuario";
+}
+
+
+function claveFotoPerfil(usuario) {
+    return `fotoPerfil_${usuario.id}`;
+}
+
+
+function inicialesUsuario(usuario) {
+    const nombre = `${usuario.nombre || ""} ${usuario.apellido || ""}`.trim();
+    return nombre
+        ? nombre.split(/\s+/).slice(0, 2).map((parte) => parte[0]).join("").toUpperCase()
+        : (usuario.correo || "U").slice(0, 1).toUpperCase();
+}
+
+
+function crearMenuPerfil(contenedor, usuario) {
+    const fotoGuardada = localStorage.getItem(claveFotoPerfil(usuario));
+    const envoltura = document.createElement("div");
+    envoltura.className = "menu-perfil";
+
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "boton-avatar";
+    boton.setAttribute("aria-label", "Abrir menú de perfil");
+    boton.setAttribute("aria-expanded", "false");
+    boton.title = "Mi perfil";
+
+    if (fotoGuardada) {
+        const imagen = document.createElement("img");
+        imagen.src = fotoGuardada;
+        imagen.alt = "";
+        boton.appendChild(imagen);
+    } else {
+        const iniciales = document.createElement("span");
+        iniciales.textContent = inicialesUsuario(usuario);
+        boton.appendChild(iniciales);
+    }
+
+    const desplegable = document.createElement("div");
+    desplegable.className = "desplegable-perfil";
+    desplegable.hidden = true;
+
+    const resumen = document.createElement("div");
+    resumen.className = "resumen-perfil-menu";
+    const nombre = document.createElement("strong");
+    nombre.textContent = `${usuario.nombre || "Usuario"} ${usuario.apellido || ""}`.trim();
+    const correo = document.createElement("span");
+    correo.textContent = usuario.correo || "";
+    resumen.append(nombre, correo);
+
+    const enlacePerfil = document.createElement("a");
+    enlacePerfil.href = "perfil.html";
+    enlacePerfil.textContent = "Ver mi perfil";
+
+    if (usuario.rol === "admin") {
+        const enlaceAdmin = document.createElement("a");
+        enlaceAdmin.href = "admin.html";
+        enlaceAdmin.textContent = "Panel administrador";
+        desplegable.append(resumen, enlaceAdmin, enlacePerfil);
+    } else {
+        desplegable.append(resumen, enlacePerfil);
+    }
+
+    const salir = document.createElement("button");
+    salir.type = "button";
+    salir.className = "salir-menu-perfil";
+    salir.textContent = "Cerrar sesión";
+    salir.addEventListener("click", cerrarSesion);
+
+    desplegable.appendChild(salir);
+    boton.addEventListener("click", function () {
+        const abierto = boton.getAttribute("aria-expanded") === "true";
+        boton.setAttribute("aria-expanded", String(!abierto));
+        boton.setAttribute("aria-label", abierto ? "Abrir menú de perfil" : "Cerrar menú de perfil");
+        desplegable.hidden = abierto;
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!envoltura.contains(event.target)) {
+            boton.setAttribute("aria-expanded", "false");
+            boton.setAttribute("aria-label", "Abrir menú de perfil");
+            desplegable.hidden = true;
+        }
+    });
+
+    envoltura.append(boton, desplegable);
+    contenedor.appendChild(envoltura);
+}
+
+
+function prepararPaginaPerfil() {
+    const pagina = document.getElementById("paginaPerfil");
+    if (!pagina) {
+        return;
+    }
+
+    const usuarioGuardado = localStorage.getItem("usuario");
+    const usuario = usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
+    if (!usuario || !usuario.id) {
+        window.location.replace("login.html");
+        return;
+    }
+
+    const foto = localStorage.getItem(claveFotoPerfil(usuario));
+    const imagen = document.getElementById("fotoPerfilGrande");
+    const iniciales = document.getElementById("inicialesPerfil");
+    const nombre = `${usuario.nombre || "Usuario"} ${usuario.apellido || ""}`.trim();
+
+    document.getElementById("nombrePerfil").textContent = nombre;
+    document.getElementById("correoPerfil").textContent = usuario.correo || "No disponible";
+    document.getElementById("rolPerfil").textContent = usuario.rol || "usuario";
+    document.getElementById("idPerfil").textContent = `#${usuario.id}`;
+    document.getElementById("saludoPerfil").textContent = `Hola, ${usuario.nombre || "bienvenido"}`;
+    iniciales.textContent = inicialesUsuario(usuario);
+
+    if (foto) {
+        imagen.src = foto;
+        imagen.hidden = false;
+        iniciales.hidden = true;
+    }
+
+    const selectorFoto = document.getElementById("selectorFotoPerfil");
+    const mensaje = document.getElementById("mensajeFotoPerfil");
+
+    selectorFoto.addEventListener("change", function () {
+        const archivo = selectorFoto.files[0];
+        if (!archivo) {
+            return;
+        }
+
+        if (!archivo.type.startsWith("image/") || archivo.size > 8 * 1024 * 1024) {
+            mensaje.textContent = "Elige una imagen válida de hasta 8 MB.";
+            selectorFoto.value = "";
+            return;
+        }
+
+        const lector = new FileReader();
+        lector.onload = function () {
+            const origen = new Image();
+            origen.onload = function () {
+                const escala = Math.min(1, 512 / Math.max(origen.width, origen.height));
+                const canvas = document.createElement("canvas");
+                canvas.width = Math.round(origen.width * escala);
+                canvas.height = Math.round(origen.height * escala);
+                canvas.getContext("2d").drawImage(origen, 0, 0, canvas.width, canvas.height);
+
+                try {
+                    const fotoReducida = canvas.toDataURL("image/jpeg", 0.82);
+                    localStorage.setItem(claveFotoPerfil(usuario), fotoReducida);
+                    imagen.src = fotoReducida;
+                    imagen.hidden = false;
+                    iniciales.hidden = true;
+                    mensaje.textContent = "Foto de perfil actualizada.";
+
+                    const avatar = document.querySelector(".boton-avatar");
+                    if (avatar) {
+                        avatar.replaceChildren();
+                        const imagenAvatar = document.createElement("img");
+                        imagenAvatar.src = fotoReducida;
+                        imagenAvatar.alt = "";
+                        avatar.appendChild(imagenAvatar);
+                    }
+                } catch (error) {
+                    mensaje.textContent = "No se pudo guardar la foto en este navegador.";
+                }
+            };
+            origen.onerror = function () {
+                mensaje.textContent = "No se pudo abrir esta imagen.";
+            };
+            origen.src = lector.result;
+        };
+        lector.onerror = function () {
+            mensaje.textContent = "No se pudo leer esta imagen.";
+        };
+        lector.readAsDataURL(archivo);
+    });
+
+    document.getElementById("quitarFotoPerfil").addEventListener("click", function () {
+        localStorage.removeItem(claveFotoPerfil(usuario));
+        imagen.removeAttribute("src");
+        imagen.hidden = true;
+        iniciales.hidden = false;
+        const avatar = document.querySelector(".boton-avatar");
+        if (avatar) {
+            const texto = document.createElement("span");
+            texto.textContent = inicialesUsuario(usuario);
+            avatar.replaceChildren(texto);
+        }
+        mensaje.textContent = "Foto de perfil eliminada.";
+    });
 }
 
 
@@ -1052,6 +1255,10 @@ function unificarIconosNavegacion() {
 
     if (usuario) {
 
+        document.querySelectorAll(".cuenta").forEach(function (cuenta) {
+            crearMenuPerfil(cuenta, usuario);
+        });
+
         // Ocultar iniciar sesión
         if (btnLogin) {
             btnLogin.style.display = "none";
@@ -1064,16 +1271,7 @@ function unificarIconosNavegacion() {
 
         // Mostrar cerrar sesión
         if (btnCerrarSesion) {
-
-            btnCerrarSesion.style.display =
-                "inline-block";
-
-            btnCerrarSesion.onclick =
-                function () {
-
-                    cerrarSesion();
-
-                };
+            btnCerrarSesion.style.display = "none";
         }
 
     } else {
@@ -2006,6 +2204,180 @@ function formatearMensajeSoporte(valor) {
 }
 
 
+function imagenParaInicio(evento) {
+    if (evento.imagen) {
+        if (/^https?:\/\//i.test(evento.imagen)) {
+            return evento.imagen;
+        }
+        return evento.imagen.startsWith("/")
+            ? evento.imagen
+            : `/uploads/${evento.imagen}`;
+    }
+
+    const categoria = (evento.categoria || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    const imagenes = {
+        musica: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1400&q=85",
+        tecnologia: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=85",
+        arte: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=1400&q=85",
+        deportes: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1400&q=85",
+        gastronomia: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1400&q=85",
+        cultura: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=85",
+        cultural: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=85",
+        emprendimiento: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1400&q=85"
+    };
+
+    return imagenes[categoria] || imagenes.cultura;
+}
+
+
+function fechaInicioLegible(fecha) {
+    if (!fecha) {
+        return "Fecha por confirmar";
+    }
+
+    const partes = String(fecha).slice(0, 10).split("-");
+    return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : "Fecha por confirmar";
+}
+
+
+async function inicializarInicioEventos() {
+    const carrusel = document.getElementById("carruselInicio");
+    const buscador = document.getElementById("buscadorEventosInicio");
+    const listaDestacados = document.getElementById("eventosDestacados");
+    const resultadosBusqueda = document.getElementById("resultadosBusquedaInicio");
+
+    if (!carrusel || !buscador || !listaDestacados || !resultadosBusqueda) {
+        return;
+    }
+
+    const tituloSlide = document.getElementById("tituloSlideInicio");
+    const categoriaSlide = document.getElementById("categoriaSlideInicio");
+    const fechaSlide = document.getElementById("fechaSlideInicio");
+    const botonAnterior = document.getElementById("slideAnterior");
+    const botonSiguiente = document.getElementById("slideSiguiente");
+    const indicadorSlide = document.getElementById("indicadorSlideInicio");
+    let eventos = [];
+    let indiceSlide = 0;
+    let intervaloSlide;
+
+    function dibujarSlide(indice) {
+        if (!eventos.length) {
+            return;
+        }
+
+        indiceSlide = (indice + eventos.length) % eventos.length;
+        const evento = eventos[indiceSlide];
+        carrusel.style.backgroundImage = `linear-gradient(90deg, rgba(15, 25, 27, .78), rgba(15, 25, 27, .08)), url("${imagenParaInicio(evento).replace(/"/g, "%22")}")`;
+        tituloSlide.textContent = evento.nombre || "Próxima experiencia";
+        categoriaSlide.textContent = evento.categoria || "Evento";
+        fechaSlide.textContent = `${fechaInicioLegible(evento.fecha)}${evento.lugar ? ` · ${evento.lugar}` : ""}`;
+        indicadorSlide.textContent = `${indiceSlide + 1} / ${eventos.length}`;
+        carrusel.setAttribute("aria-label", `Evento ${indiceSlide + 1} de ${eventos.length}: ${evento.nombre || "Evento"}`);
+    }
+
+    function crearTarjeta(evento) {
+        const tarjeta = document.createElement("a");
+        tarjeta.className = "evento-inicio-card";
+        tarjeta.href = "eventos.html";
+
+        const imagen = document.createElement("img");
+        imagen.src = imagenParaInicio(evento);
+        imagen.alt = "";
+        imagen.loading = "lazy";
+
+        const contenido = document.createElement("div");
+        contenido.className = "evento-inicio-info";
+        const categoria = document.createElement("span");
+        categoria.className = "evento-inicio-categoria";
+        categoria.textContent = evento.categoria || "Evento";
+        const titulo = document.createElement("h3");
+        titulo.textContent = evento.nombre || "Evento sin nombre";
+        const detalle = document.createElement("p");
+        detalle.textContent = `${fechaInicioLegible(evento.fecha)}${evento.lugar ? ` · ${evento.lugar}` : ""}`;
+        contenido.append(categoria, titulo, detalle);
+        tarjeta.append(imagen, contenido);
+        return tarjeta;
+    }
+
+    function dibujarResultados(consulta) {
+        const coincidencias = eventos.filter((evento) => {
+            const texto = [evento.nombre, evento.categoria, evento.lugar]
+                .filter(Boolean)
+                .join(" ")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase();
+            const termino = consulta
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase();
+            return texto.includes(termino);
+        });
+
+        resultadosBusqueda.replaceChildren();
+        if (!consulta) {
+            resultadosBusqueda.hidden = true;
+            return;
+        }
+
+        resultadosBusqueda.hidden = false;
+        if (!coincidencias.length) {
+            const vacio = document.createElement("p");
+            vacio.className = "busqueda-vacia";
+            vacio.textContent = "No encontramos eventos con ese nombre, categoría o lugar.";
+            resultadosBusqueda.appendChild(vacio);
+            return;
+        }
+
+        coincidencias.slice(0, 5).forEach((evento) => {
+            resultadosBusqueda.appendChild(crearTarjeta(evento));
+        });
+    }
+
+    try {
+        const respuesta = await fetch("/api/eventos");
+        if (!respuesta.ok) {
+            throw new Error("No se pudieron cargar los eventos");
+        }
+
+        eventos = await respuesta.json();
+        if (!Array.isArray(eventos)) {
+            eventos = [];
+        }
+
+        eventos.sort((a, b) => String(a.fecha || "").localeCompare(String(b.fecha || "")));
+        if (!eventos.length) {
+            tituloSlide.textContent = "Muy pronto habrá nuevas experiencias";
+            listaDestacados.innerHTML = '<p class="busqueda-vacia">Aún no hay eventos publicados.</p>';
+            return;
+        }
+
+        listaDestacados.replaceChildren();
+        dibujarSlide(0);
+        botonAnterior.addEventListener("click", () => dibujarSlide(indiceSlide - 1));
+        botonSiguiente.addEventListener("click", () => dibujarSlide(indiceSlide + 1));
+        carrusel.addEventListener("mouseenter", () => window.clearInterval(intervaloSlide));
+        carrusel.addEventListener("mouseleave", () => {
+            window.clearInterval(intervaloSlide);
+            intervaloSlide = window.setInterval(() => dibujarSlide(indiceSlide + 1), 6000);
+        });
+        intervaloSlide = window.setInterval(() => dibujarSlide(indiceSlide + 1), 6000);
+
+        eventos.slice(0, 3).forEach((evento) => {
+            listaDestacados.appendChild(crearTarjeta(evento));
+        });
+        buscador.addEventListener("input", () => dibujarResultados(buscador.value.trim()));
+    } catch (error) {
+        console.error("No se pudieron cargar los eventos del inicio:", error);
+        tituloSlide.textContent = "Descubre los próximos eventos";
+        listaDestacados.innerHTML = '<p class="busqueda-vacia">No se pudieron cargar los eventos. Intenta actualizar la página.</p>';
+    }
+}
+
+
 // ========================================
 // EJECUTAR AL CARGAR LA PÁGINA
 // ========================================
@@ -2020,9 +2392,13 @@ document.addEventListener(
 
         mostrarUsuario();
 
+        prepararPaginaPerfil();
+
         cargarSoporte();
 
         cargarSoporteAdmin();
+
+        inicializarInicioEventos();
 
     }
 );
