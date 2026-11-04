@@ -24,5 +24,12 @@ en `.env`. Reinicia el servidor e inicia sesión de nuevo para entrar al panel
 privado `/admin.html`. La API verifica el token y vuelve a comprobar el rol en
 la base en cada operacion.
 
+En un hosting que despliega desde GitHub, define tambien `ADMIN_EMAIL`,
+`ADMIN_PASSWORD` y un `SESSION_SECRET` persistente en la configuracion privada
+del servicio. Al iniciar sesion, la aplicacion crea la cuenta administradora si
+no existe o asigna el rol admin si ya existe; nunca guarda `ADMIN_PASSWORD` en
+el repositorio ni en texto plano en la base de datos. Asegurate de que el
+hosting apunte a la misma base MySQL que contiene los eventos y usuarios.
+
 Las reservas y sus correos son comprobantes de demostracion. La plataforma no
 procesa pagos reales ni confirma cargos bancarios.

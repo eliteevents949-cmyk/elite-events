@@ -1,11 +1,67 @@
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
+const db = require("../config/database");
 
-const secret = process.env.SESSION_SECRET || "";
+const secret = process.env.SESSION_SECRET || crypto.randomBytes(48).toString("base64url");
 
 function correoAdministrador() {
     return String(process.env.ADMIN_EMAIL || process.env.MAIL_USER || "")
         .trim()
         .toLowerCase();
+}
+
+function asegurarCuentaAdministradora(correoLogin) {
+    const correo = correoAdministrador();
+    const passwordInicial = process.env.ADMIN_PASSWORD;
+
+    if (
+        !correo ||
+        !passwordInicial ||
+        String(correoLogin).trim().toLowerCase() !== correo
+    ) {
+        return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+        db.query(
+            "SELECT id FROM usuarios WHERE LOWER(correo) = ?",
+            [correo],
+            async (error, usuarios) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+
+                if (usuarios.length) {
+                    db.query(
+                        "UPDATE usuarios SET rol = 'admin' WHERE id = ?",
+                        [usuarios[0].id],
+                        (errorActualizar) => {
+                            if (errorActualizar) reject(errorActualizar);
+                            else resolve();
+                        }
+                    );
+                    return;
+                }
+
+                try {
+                    const passwordHash = await bcrypt.hash(passwordInicial, 12);
+                    db.query(
+                        `INSERT INTO usuarios
+                         (nombre, apellido, correo, password, rol)
+                         VALUES (?, ?, ?, ?, 'admin')`,
+                        ["Elite Events", "Admin", correo, passwordHash],
+                        (errorCrear) => {
+                            if (errorCrear) reject(errorCrear);
+                            else resolve();
+                        }
+                    );
+                } catch (errorHash) {
+                    reject(errorHash);
+                }
+            }
+        );
+    });
 }
 
 function crearTokenAdministrador(usuario) {
@@ -72,6 +128,7 @@ function verificarTokenAdministrador(token) {
 
 module.exports = {
     correoAdministrador,
+    asegurarCuentaAdministradora,
     crearTokenAdministrador,
     verificarTokenAdministrador
 };

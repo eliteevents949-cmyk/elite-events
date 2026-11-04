@@ -87,6 +87,8 @@ async function login(req, res) {
 
         }
 
+        await adminAuthService.asegurarCuentaAdministradora(correo);
+
 
         const usuario =
             await usuariosService
