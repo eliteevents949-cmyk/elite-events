@@ -555,6 +555,139 @@ async function procesarReserva(eventoId) {
 // MOSTRAR RESERVAS
 // ========================================
 
+function dibujarCalendarioReservas(reservas) {
+    const calendario = document.getElementById("calendarioReservas");
+    const tituloMes = document.getElementById("mesCalendarioReservas");
+    const cuadrilla = document.getElementById("diasCalendarioReservas");
+    const tituloDia = document.getElementById("tituloDiaCalendario");
+    const eventosDia = document.getElementById("eventosDiaCalendario");
+
+    if (!calendario || !tituloMes || !cuadrilla || !tituloDia || !eventosDia) {
+        return;
+    }
+
+    const eventosPorFecha = new Map();
+    reservas.forEach((reserva) => {
+        const fecha = String(reserva.fecha_evento || "").slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+            return;
+        }
+        if (!eventosPorFecha.has(fecha)) {
+            eventosPorFecha.set(fecha, []);
+        }
+        eventosPorFecha.get(fecha).push(reserva);
+    });
+
+    calendario.hidden = false;
+    const ahora = new Date();
+    let mesVisible = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+    let fechaSeleccionada = [...eventosPorFecha.keys()]
+        .filter((fecha) => fecha.startsWith(`${mesVisible.getFullYear()}-${String(mesVisible.getMonth() + 1).padStart(2, "0")}`))
+        .sort()[0] || `${mesVisible.getFullYear()}-${String(mesVisible.getMonth() + 1).padStart(2, "0")}-01`;
+
+    function mostrarDetalle(fecha) {
+        fechaSeleccionada = fecha;
+        const [year, month, day] = fecha.split("-").map(Number);
+        const fechaLocal = new Date(year, month - 1, day);
+        const diaLegible = new Intl.DateTimeFormat("es-CO", {
+            weekday: "long",
+            day: "numeric",
+            month: "long"
+        }).format(fechaLocal);
+        tituloDia.textContent = diaLegible.charAt(0).toLocaleUpperCase("es-CO") + diaLegible.slice(1);
+        eventosDia.replaceChildren();
+
+        const eventos = eventosPorFecha.get(fecha) || [];
+        if (!eventos.length) {
+            const vacio = document.createElement("p");
+            vacio.className = "calendario-sin-eventos";
+            vacio.textContent = "No tienes eventos reservados para este día.";
+            eventosDia.appendChild(vacio);
+            return;
+        }
+
+        eventos.forEach((reserva) => {
+            const elemento = document.createElement("article");
+            elemento.className = "evento-calendario-reserva";
+            const nombre = document.createElement("strong");
+            nombre.textContent = reserva.evento || "Evento reservado";
+            const detalle = document.createElement("p");
+            const hora = String(reserva.hora_evento || "").slice(0, 5);
+            detalle.textContent = [hora, reserva.lugar_evento].filter(Boolean).join(" · ") || "Hora y lugar por confirmar";
+            elemento.append(nombre, detalle);
+            eventosDia.appendChild(elemento);
+        });
+
+        cuadrilla.querySelectorAll("[data-fecha]").forEach((boton) => {
+            boton.setAttribute("aria-pressed", String(boton.dataset.fecha === fechaSeleccionada));
+        });
+    }
+
+    function dibujarMes() {
+        const year = mesVisible.getFullYear();
+        const month = mesVisible.getMonth();
+        const mesLegible = new Intl.DateTimeFormat("es-CO", {
+            month: "long",
+            year: "numeric"
+        }).format(mesVisible);
+        tituloMes.textContent = mesLegible.charAt(0).toLocaleUpperCase("es-CO") + mesLegible.slice(1);
+
+        cuadrilla.replaceChildren();
+        ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].forEach((dia) => {
+            const encabezado = document.createElement("span");
+            encabezado.className = "calendario-dia-semana";
+            encabezado.setAttribute("role", "columnheader");
+            encabezado.textContent = dia;
+            cuadrilla.appendChild(encabezado);
+        });
+
+        const primerDia = (new Date(year, month, 1).getDay() + 6) % 7;
+        const cantidadDias = new Date(year, month + 1, 0).getDate();
+        for (let espacio = 0; espacio < primerDia; espacio += 1) {
+            const vacio = document.createElement("span");
+            vacio.className = "calendario-dia-vacio";
+            vacio.setAttribute("aria-hidden", "true");
+            cuadrilla.appendChild(vacio);
+        }
+
+        for (let dia = 1; dia <= cantidadDias; dia += 1) {
+            const fecha = `${year}-${String(month + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+            const reservasDia = eventosPorFecha.get(fecha) || [];
+            const boton = document.createElement("button");
+            boton.type = "button";
+            boton.className = "calendario-dia";
+            boton.textContent = String(dia);
+            boton.dataset.fecha = fecha;
+            boton.setAttribute("aria-label", `${dia} de ${tituloMes.textContent}${reservasDia.length ? `, ${reservasDia.length} evento${reservasDia.length === 1 ? "" : "s"} reservado${reservasDia.length === 1 ? "" : "s"}` : ""}`);
+            boton.setAttribute("aria-pressed", String(fecha === fechaSeleccionada));
+            if (reservasDia.length) {
+                boton.classList.add("tiene-reservas");
+                const punto = document.createElement("span");
+                punto.className = "calendario-indicador";
+                punto.setAttribute("aria-hidden", "true");
+                boton.appendChild(punto);
+            }
+            boton.addEventListener("click", () => mostrarDetalle(fecha));
+            cuadrilla.appendChild(boton);
+        }
+
+        mostrarDetalle(fechaSeleccionada);
+    }
+
+    document.getElementById("mesAnteriorReservas").addEventListener("click", () => {
+        mesVisible = new Date(mesVisible.getFullYear(), mesVisible.getMonth() - 1, 1);
+        fechaSeleccionada = `${mesVisible.getFullYear()}-${String(mesVisible.getMonth() + 1).padStart(2, "0")}-01`;
+        dibujarMes();
+    });
+    document.getElementById("mesSiguienteReservas").addEventListener("click", () => {
+        mesVisible = new Date(mesVisible.getFullYear(), mesVisible.getMonth() + 1, 1);
+        fechaSeleccionada = `${mesVisible.getFullYear()}-${String(mesVisible.getMonth() + 1).padStart(2, "0")}-01`;
+        dibujarMes();
+    });
+
+    dibujarMes();
+}
+
 async function mostrarReservas() {
 
     const contenedor =
@@ -673,6 +806,7 @@ async function mostrarReservas() {
             return;
         }
 
+        dibujarCalendarioReservas(reservas);
         contenedor.innerHTML = "";
 
         reservas.forEach(function (reserva) {

@@ -313,6 +313,9 @@ async function obtenerReservas(usuarioId) {
                 reservas.evento_id,
                 eventos.nombre AS evento,
                 eventos.imagen,
+                eventos.fecha AS fecha_evento,
+                eventos.hora AS hora_evento,
+                eventos.lugar AS lugar_evento,
                 reservas.fecha_reserva
             FROM reservas
             INNER JOIN eventos

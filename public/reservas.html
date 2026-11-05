@@ -81,6 +81,27 @@
 
     <section class="reservas">
 
+        <section class="calendario-reservas" id="calendarioReservas" aria-label="Calendario de mis eventos reservados" hidden>
+            <div class="calendario-cabecera">
+                <div>
+                    <p class="calendario-etiqueta">AGENDA</p>
+                    <h2 id="mesCalendarioReservas">Calendario de reservas</h2>
+                </div>
+                <div class="calendario-navegacion">
+                    <button id="mesAnteriorReservas" type="button" aria-label="Mes anterior">‹</button>
+                    <button id="mesSiguienteReservas" type="button" aria-label="Mes siguiente">›</button>
+                </div>
+            </div>
+            <div class="calendario-cuerpo">
+                <div class="calendario-grid" id="diasCalendarioReservas" role="grid" aria-label="Días del mes"></div>
+                <aside class="calendario-detalle" aria-live="polite">
+                    <p class="calendario-etiqueta">DÍA SELECCIONADO</p>
+                    <h3 id="tituloDiaCalendario">Elige una fecha</h3>
+                    <div id="eventosDiaCalendario"></div>
+                </aside>
+            </div>
+        </section>
+
         <div id="listaReservas">
 
             <p>
